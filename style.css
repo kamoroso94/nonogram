@@ -1,0 +1,37 @@
+/* nonogram */
+/* color-picker */
+/* hint-box */
+
+body {
+  margin: 0px;
+  padding: 10px;
+  background: #CCC;
+}
+
+section:first-of-type {
+  margin-top: 0px;
+}
+
+section {
+  margin: 20px auto 0px;
+  padding: 10px;
+  max-width: 1024px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+  background: #FFF;
+}
+
+.padded {
+  padding: 10px 0px;
+}
+
+img.thumb {
+  margin: 5px;
+  padding: 5px;
+  width: 200px;
+  box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+  transition: 0.5s;
+}
+
+img.thumb:hover {
+  box-shadow: 0px 0px 10px rgba(0,0,255,0.5);
+}

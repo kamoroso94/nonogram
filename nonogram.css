@@ -1,0 +1,49 @@
+#nonogram {
+  border-collapse: collapse;
+  background: #FFF;
+  user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+#nonogram tr:first-of-type th {
+  padding: 0px 0px 2px;
+  text-align: center;
+  vertical-align: bottom;
+}
+
+#nonogram th {
+  padding: 0px 2px 0px 0px;
+  border: 2px solid #000;
+  text-align: right;
+  vertical-align: middle;
+  white-space: nowrap;
+  cursor: default;
+}
+
+#nonogram td {
+  padding: 2px;
+  width: 25px;
+  height: 25px;
+  border: 2px solid #000;
+  text-align: center;
+  vertical-align: middle;
+}
+
+#nonogram td:hover {
+  background: #EEE;
+}
+
+#nonogram td.empty {
+  visibility: hidden;
+  border: none;
+}
+
+#nonogram td div {
+  width: inherit;
+  height: inherit;
+  font-family: monospace;
+  font-size: 20px;
+  cursor: pointer;
+}

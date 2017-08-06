@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Nonogram</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- SEO -->
+    <meta name="application-name" content="Nonogram" />
+    <meta name="author" content="Kyle Amoroso" />
+    <meta name="description" content="Nonogram is a fun and challenging puzzle." />
+    <meta name="keywords" content="nonogram,puzzle,game,html5" />
+    <meta name="version" content="1.0" />
+    <meta property="og:title" content="Nonogram" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kamoroso94.github.io/nonogram/" />
+    <meta property="og:image" content="https://kamoroso94.github.io/nonogram/splash.png" />
+    <meta property="og:description" content="Nonogram is a fun and challenging puzzle." />
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="icon" type="image/png" href="icons/favicon-16.png" />
+    <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+    <link rel="icon" type="image/png" href="icons/favicon-64.png" />
+    <link rel="icon" type="image/png" href="icons/favicon-128.png" />
+    <!-- Cutsom -->
+    <link rel="stylesheet" href="nonogram.css" />
+    <link rel="stylesheet" href="color-picker.css" />
+    <link rel="stylesheet" href="hint-box.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="nonogram.js"></script>
+  </head>
+
+  <body>
+    <section>
+      <h1>Nonogram</h1>
+      <table id="nonogram"><tr><td class="empty"></td></tr></table>
+
+      <div class="padded">Dimensions:
+        <select id="dimensions">
+          <option value="5" selected>5&times;5 - Beginner</option>
+          <option value="10">10&times;10 - Intermediate</option>
+          <option value="15">15&times;15 - Advanced</option>
+          <option value="20">20&times;20 - Expert</option>
+        </select>
+      </div>
+
+      <div class="padded">Difficulty:
+        <select id="difficulty">
+          <option value="0.6">Easy</option>
+          <option value="0.5" selected>Medium</option>
+          <option value="0.4">Hard</option>
+        </select>
+      </div>
+
+      <div class="padded">Color:
+        <input type="radio" name="color" id="color-0" value="black" checked /><label for="color-0"><div title="Black" style="background:black;"></div></label>
+        <input type="radio" name="color" id="color-1" value="red" /><label for="color-1"><div title="Red" style="background:red;"></div></label>
+        <input type="radio" name="color" id="color-2" value="lime" /><label for="color-2"><div title="Green" style="background:lime;"></div></label>
+        <input type="radio" name="color" id="color-3" value="blue" /><label for="color-3"><div title="Blue" style="background:blue;"></div></label>
+        <input type="radio" name="color" id="color-4" value="yellow" /><label for="color-4"><div title="Yellow" style="background:yellow;"></div></label>
+        <input type="radio" name="color" id="color-5" value="magenta" /><label for="color-5"><div title="Magenta" style="background:magenta;"></div></label>
+        <input type="radio" name="color" id="color-6" value="cyan" /><label for="color-6"><div title="Cyan" style="background:cyan;"></div></label>
+      </div>
+
+      <div class="padded">
+        <label><input type="checkbox" id="hints" /> Enable Hints:</label>
+        <div id="hintBox"><i>Hints disabled.</i></div>
+      </div>
+
+      <div class="padded">
+        <button id="reset1">Clear Color</button>
+        <button id="reset2">Clear All</button>
+        <button id="play">New Game</button>
+        <button id="submit">Submit Answer</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>How to Play</h2>
+      <p>These are some terms you'll need to know in order to be able to understand how to play.
+        The table cells with numbers in them are the labels for their respective row or column.
+        Those numbers are in a specific order and are important in solving the puzzle.
+        A space is one of the cells that are not labels, and it can either be filled or empty.
+        A series of filled spaces is a block.
+        It is important to know that each block must have at least one empty space between it and another block.
+        The numbers in the labels correspond to the length of each block in that label's row or column.
+        The goal of the game is determining for every space whether it is filled or empty.
+        It is important to know that there may be multiple solutions to a puzzle, and that some puzzles may require guessing later during solving.
+        Many spaces can be determined to be filled or empty based on logic.
+        When all other methods using logic are exhausted, make a guess whether a space is filled or empty (this should be a last resort).
+        Also, you should use a different color when making a guess.
+        If you run into a contradiction, your initial guess (filled or empty) must be wrong, and therefore guaranteed to be the opposite (empty or filled, respectively).
+        For some logical techniques used for solving a nonogram, please read this <a href="http://en.wikipedia.org/wiki/Nonogram" target="_blank">Wikipedia article</a>.
+        Here are some solutions to nonograms of various sizes:</p>
+
+      <a href="images/5x5.png" target="_blank"><img src="images/5x5.png" alt="A solution to a 5x5 nonogram puzzle." title="5x5 Nonogram" class="thumb" /></a>
+      <a href="images/10x10.png" target="_blank"><img src="images/10x10.png" alt="A solution to a 10x10 nonogram puzzle." title="10x10 Nonogram" class="thumb" /></a>
+      <a href="images/15x15.png" target="_blank"><img src="images/15x15.png" alt="A solution to a 15x15 nonogram puzzle." title="15x15 Nonogram" class="thumb" /></a>
+      <a href="images/20x20.png" target="_blank"><img src="images/20x20.png" alt="A solution to a 20x20 nonogram puzzle." title="20x20 Nonogram" class="thumb" /></a>
+    </section>
+  </body>
+</html>

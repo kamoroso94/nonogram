@@ -1,0 +1,12 @@
+label {
+  cursor: pointer;
+}
+
+#hintBox {
+  padding: 5px;
+  border: 1px solid #888;
+}
+
+#hintBox i {
+  color: #888;
+}
