@@ -31,13 +31,13 @@
   vertical-align: middle;
 }
 
-#nonogram td:hover {
+#nonogram td:not(.empty):hover {
   background: #EEE;
 }
 
 #nonogram td.empty {
-  visibility: hidden;
-  border: none;
+  border-top: none;
+  border-left: none;
 }
 
 #nonogram td div {
