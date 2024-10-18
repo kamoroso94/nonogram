@@ -1,7 +1,9 @@
+const DOMAIN = 'abcdefghijklmnopqrst';
+const COLOR_DEFAULT = 'var(--color-default)';
+
 let mouseBtn = false;
 const keyLegend = {top: [], left: []};
-let playColor = 'black';
-const domain = 'abcdefghijklmnopqrst';
+let playColor = COLOR_DEFAULT;
 
 /** @type {number} */
 let dim;
@@ -70,7 +72,7 @@ function init() {
           tr.appendChild(th);
         } else {
           td = document.createElement('td');
-          td.id = domain.charAt(i - 1) + domain.charAt(j - 1);
+          td.id = DOMAIN.charAt(i - 1) + DOMAIN.charAt(j - 1);
           td.appendChild(document.createElement('div'));
           tr.appendChild(td);
         }
@@ -105,7 +107,7 @@ function init() {
   for (let i = 0; i < colors.length; i++) {
     if (colors[i].htmlFor.startsWith('color')) {
       colors[i].addEventListener('click', (event) => {
-        playColor = document.getElementById(event.currentTarget.htmlFor).value;
+        playColor = `var(--color-${event.currentTarget.htmlFor})`;
         document.getElementById('reset1').innerHTML =
           'Clear ' + event.currentTarget.firstElementChild.title;
       });
@@ -209,7 +211,7 @@ function gameSetup() {
 
 /**
  * Resets `userPuzzle` and nonogram.
- * @param {boolean} allColors Whether to reset all colors or just the current\
+ * @param {boolean} allColors Whether to reset all colors or just the current
  *    color.
  */
 function gameReset(allColors) {
@@ -219,7 +221,7 @@ function gameReset(allColors) {
     for (let j = 0; j < dim; j++) {
       if (
         allColors ||
-        document.getElementById(domain.charAt(i) + domain.charAt(j))
+        document.getElementById(DOMAIN.charAt(i) + DOMAIN.charAt(j))
           .firstElementChild.style.color === playColor
       ) {
         userPuzzle[i][j] = -1;
@@ -347,8 +349,8 @@ function checkPuzzle() {
  * @param {HTMLDivElement} box The box inside the `<td>`.
  */
 function toggleSqr(box) {
-  const a = domain.indexOf(box.parentNode.id.charAt(0));
-  const b = domain.indexOf(box.parentNode.id.charAt(1));
+  const a = DOMAIN.indexOf(box.parentNode.id.charAt(0));
+  const b = DOMAIN.indexOf(box.parentNode.id.charAt(1));
 
   userPuzzle[a][b] = 1 - 1 / userPuzzle[a][b];
 
@@ -356,7 +358,7 @@ function toggleSqr(box) {
     case 0.5: // 0.5 crossed
       box.style.backgroundColor = '';
       box.style.color = playColor;
-      box.innerHTML = '&times;';
+      box.textContent = '╳';
       break;
 
     case -1: // -1 empty
@@ -437,8 +439,8 @@ function gameHints(enabled) {
 
 /** Resets the color picker component. */
 function resetColor() {
-  document.getElementById('color-0').checked = true;
-  playColor = 'black';
+  document.getElementById('color-default').checked = true;
+  playColor = COLOR_DEFAULT;
   document.getElementById('reset1').innerHTML = 'Clear Black';
 }
 

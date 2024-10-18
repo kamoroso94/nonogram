@@ -1,6 +1,6 @@
 #nonogram {
   border-collapse: collapse;
-  background: #fff;
+  line-height: normal;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -15,7 +15,8 @@
 
 #nonogram th {
   padding: 0 2px 0 0;
-  border: 2px solid #000;
+  border: 2px solid light-dark(#000, #fff);
+  background-color: light-dark(#fff, #1b1b1b);
   text-align: right;
   vertical-align: middle;
   white-space: nowrap;
@@ -26,24 +27,26 @@
   padding: 2px;
   width: 25px;
   height: 25px;
-  border: 2px solid #000;
+  border: 2px solid light-dark(#000, #fff);
+  background-color: light-dark(#fff, #222);
   text-align: center;
   vertical-align: middle;
 }
 
 #nonogram td:not(.empty):hover {
-  background: #eee;
+  background-color: light-dark(#eee, #444);
 }
 
 #nonogram td.empty {
   border-top: none;
   border-left: none;
+  visibility: hidden;
 }
 
 #nonogram td div {
   width: inherit;
   height: inherit;
-  font-family: monospace;
-  font-size: 20px;
+  font-weight: bold;
+  text-shadow: -1px 0, 0 -1px, 1px 0, 0 1px;
   cursor: pointer;
 }

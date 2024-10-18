@@ -11,8 +11,8 @@
       name="description"
       content="Nonogram is a fun and challenging puzzle."
     />
-    <meta name="keywords" content="nonogram,puzzle,game,html5" />
-    <meta name="version" content="1.0" />
+    <meta name="keywords" content="nonogram,puzzle,game" />
+    <meta name="version" content="1.1" />
     <meta property="og:title" content="Nonogram" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://kamoroso94.github.io/nonogram/" />
@@ -68,44 +68,52 @@
 
       <div class="padded">
         Color:
+
         <input
           type="radio"
           name="color"
-          id="color-0"
-          value="black"
+          id="color-default"
+          value="default"
           checked
-        /><label for="color-0"
-          ><div title="Black" style="background: black"></div
-        ></label>
-        <input type="radio" name="color" id="color-1" value="red" /><label
-          for="color-1"
-          ><div title="Red" style="background: red"></div
-        ></label>
-        <input type="radio" name="color" id="color-2" value="lime" /><label
-          for="color-2"
-          ><div title="Green" style="background: lime"></div
-        ></label>
-        <input type="radio" name="color" id="color-3" value="blue" /><label
-          for="color-3"
-          ><div title="Blue" style="background: blue"></div
-        ></label>
-        <input type="radio" name="color" id="color-4" value="yellow" /><label
-          for="color-4"
-          ><div title="Yellow" style="background: yellow"></div
-        ></label>
-        <input type="radio" name="color" id="color-5" value="magenta" /><label
-          for="color-5"
-          ><div title="Magenta" style="background: magenta"></div
-        ></label>
-        <input type="radio" name="color" id="color-6" value="cyan" /><label
-          for="color-6"
-          ><div title="Cyan" style="background: cyan"></div
-        ></label>
+        />
+        <label for="color-default">
+          <div title="Default"></div>
+        </label>
+
+        <input type="radio" name="color" id="color-red" value="red" />
+        <label for="color-red">
+          <div title="Red"></div>
+        </label>
+
+        <input type="radio" name="color" id="color-green" value="green" />
+        <label for="color-green">
+          <div title="Green"></div>
+        </label>
+
+        <input type="radio" name="color" id="color-blue" value="blue" />
+        <label for="color-blue">
+          <div title="Blue"></div>
+        </label>
+
+        <input type="radio" name="color" id="color-orange" value="orange" />
+        <label for="color-orange">
+          <div title="Orange"></div>
+        </label>
+
+        <input type="radio" name="color" id="color-purple" value="purple" />
+        <label for="color-purple">
+          <div title="Purple"></div>
+        </label>
+
+        <input type="radio" name="color" id="color-gray" value="gray" />
+        <label for="color-gray">
+          <div title="Teal"></div>
+        </label>
       </div>
 
       <div class="padded">
         <label><input type="checkbox" id="hints" /> Enable Hints:</label>
-        <div id="hintBox"><i>Hints disabled.</i></div>
+        <div id="hintBox"><em>Hints disabled.</em></div>
       </div>
 
       <div class="padded">
