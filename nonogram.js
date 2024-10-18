@@ -107,7 +107,7 @@ function init() {
   for (let i = 0; i < colors.length; i++) {
     if (colors[i].htmlFor.startsWith('color')) {
       colors[i].addEventListener('click', (event) => {
-        playColor = `var(--color-${event.currentTarget.htmlFor})`;
+        playColor = `var(--${event.currentTarget.htmlFor})`;
         document.getElementById('reset1').innerHTML =
           'Clear ' + event.currentTarget.firstElementChild.title;
       });
