@@ -1,37 +1,33 @@
-/* nonogram */
-/* color-picker */
-/* hint-box */
-
 body {
-  margin: 0px;
+  margin: 0;
   padding: 10px;
-  background: #CCC;
+  background: #ccc;
 }
 
 section:first-of-type {
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 section {
-  margin: 20px auto 0px;
+  margin: 20px auto 0;
   padding: 10px;
   max-width: 1024px;
-  box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
-  background: #FFF;
+  box-shadow: 0 0 10px rgb(0 0 0 / 50%);
+  background: #fff;
 }
 
 .padded {
-  padding: 10px 0px;
+  padding: 10px 0;
 }
 
 img.thumb {
   margin: 5px;
   padding: 5px;
   width: 200px;
-  box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+  box-shadow: 0 0 5px rgb(0 0 0 / 0.5);
   transition: 0.5s;
 }
 
 img.thumb:hover {
-  box-shadow: 0px 0px 10px rgba(0,0,255,0.5);
+  box-shadow: 0 0 10px rgb(0 0 255 / 0.5);
 }

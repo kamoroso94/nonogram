@@ -1,20 +1,20 @@
 #nonogram {
   border-collapse: collapse;
-  background: #FFF;
+  background: #fff;
   user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 #nonogram tr:first-of-type th {
-  padding: 0px 0px 2px;
+  padding: 0 0 2px;
   text-align: center;
   vertical-align: bottom;
 }
 
 #nonogram th {
-  padding: 0px 2px 0px 0px;
+  padding: 0 2px 0 0;
   border: 2px solid #000;
   text-align: right;
   vertical-align: middle;
@@ -32,7 +32,7 @@
 }
 
 #nonogram td:not(.empty):hover {
-  background: #EEE;
+  background: #eee;
 }
 
 #nonogram td.empty {

@@ -1,8 +1,8 @@
-input[id|="color"] {
+input[id|='color'] {
   display: none;
 }
 
-label[for|="color"] {
+label[for|='color'] {
   display: inline-block;
   padding: 2px;
   width: 25px;
@@ -11,15 +11,15 @@ label[for|="color"] {
   cursor: default;
 }
 
-input[id|="color"]:checked + label[for|="color"] {
+input[id|='color']:checked + label[for|='color'] {
   border-style: solid;
 }
 
-input[id|="color"] + label[for|="color"]:hover {
-  background: #EEE;
+input[id|='color'] + label[for|='color']:hover {
+  background: #eee;
 }
 
-label[for|="color"] > div {
+label[for|='color'] > div {
   display: inline-block;
   width: inherit;
   height: inherit;
