@@ -1,3 +1,5 @@
+'use strict';
+
 const DOMAIN = 'abcdefghijklmnopqrst';
 const COLOR_DEFAULT = 'var(--color-default)';
 
@@ -5,11 +7,47 @@ let mouseBtn = false;
 const keyLegend = {top: [], left: []};
 let playColor = COLOR_DEFAULT;
 
+/** @typedef {('empty' | 'crossed' | 'filled')} Cell */
+
+/** @enum {Cell} */
+const CellEnum = /** @type {const}*/ ({
+  EMPTY: 'empty',
+  CROSSED: 'crossed',
+  FILLED: 'filled',
+});
+
+/**
+ * Coerces a cell value to a defined state.
+ * @param {Cell} cell
+ * @returns {Cell}
+ */
+function coerceCell(cell) {
+  return cell === CellEnum.EMPTY ? CellEnum.CROSSED : cell;
+}
+
+/**
+ * Toggles a cell from empty, to filled, to crossed, and then repeat.
+ * @param {Cell} cell
+ * @returns {Cell}
+ */
+function toggleCell(cell) {
+  switch (cell) {
+    case CellEnum.EMPTY:
+      return CellEnum.FILLED;
+    case CellEnum.FILLED:
+      return CellEnum.CROSSED;
+    case CellEnum.CROSSED:
+      return CellEnum.EMPTY;
+    default:
+      throw new TypeError(`Unknown cell "${cell}"`);
+  }
+}
+
 /** @type {number} */
 let dim;
-/** @type {number[][]} */
+/** @type {Cell[][]} */
 let keyPuzzle;
-/** @type {number[][]} */
+/** @type {Cell[][]} */
 let userPuzzle;
 /** @type {HTMLTableElement} */
 let nonogram;
@@ -37,8 +75,9 @@ function init() {
   for (let i = 0; i < dim; i++) {
     for (let j = 0; j < dim; j++) {
       // make key puzzle random and user puzzle empty
-      keyPuzzle[i][j] = Math.random() < dif ? 1 : 0;
-      userPuzzle[i][j] = -1;
+      keyPuzzle[i][j] =
+        Math.random() < dif ? CellEnum.FILLED : CellEnum.CROSSED;
+      userPuzzle[i][j] = CellEnum.EMPTY;
     }
   }
 
@@ -143,8 +182,11 @@ function gameSetup() {
 
     // get column hints
     for (let j = 0; j < dim; j++) {
-      count += keyPuzzle[j][i];
-      if (count > 0 && (keyPuzzle[j][i] === 0 || j === dim - 1)) {
+      if (keyPuzzle[j][i] === CellEnum.FILLED) count++;
+      if (
+        count > 0 &&
+        (keyPuzzle[j][i] === CellEnum.CROSSED || j === dim - 1)
+      ) {
         sum.push(count);
         count = 0;
       }
@@ -174,8 +216,11 @@ function gameSetup() {
 
     // get row hints
     for (let j = 0; j < dim; j++) {
-      count += keyPuzzle[i][j];
-      if (count > 0 && (keyPuzzle[i][j] === 0 || j === dim - 1)) {
+      if (keyPuzzle[i][j] === CellEnum.FILLED) count++;
+      if (
+        count > 0 &&
+        (keyPuzzle[i][j] === CellEnum.CROSSED || j === dim - 1)
+      ) {
         sum.push(count);
         count = 0;
       }
@@ -224,7 +269,7 @@ function gameReset(allColors) {
         document.getElementById(DOMAIN.charAt(i) + DOMAIN.charAt(j))
           .firstElementChild.style.color === playColor
       ) {
-        userPuzzle[i][j] = -1;
+        userPuzzle[i][j] = CellEnum.EMPTY;
       }
     }
   }
@@ -245,13 +290,14 @@ function gameReset(allColors) {
 
 /** Checks to see if the puzzle is in a solved state. */
 function checkPuzzle() {
+  /** @type {!Cell[][]} */
   const arr = matrix(dim, dim);
   const userLegend = {top: [], left: []};
   const isWin = {top: true, left: true};
 
   for (let i = 0; i < dim; i++) {
     for (let j = 0; j < dim; j++) {
-      arr[i][j] = Math.floor(Math.abs(userPuzzle[i][j] / 2));
+      arr[i][j] = coerceCell(userPuzzle[i][j]);
     }
   }
 
@@ -261,9 +307,9 @@ function checkPuzzle() {
     let a = 0;
 
     for (let j = 0; j < dim; j++) {
-      a += arr[j][i];
+      if (arr[j][i] === CellEnum.FILLED) a++;
       if (
-        ((arr[j][i] === 0 || j === dim - 1) && a > 0) ||
+        ((arr[j][i] === CellEnum.CROSSED || j === dim - 1) && a > 0) ||
         (j === dim - 1 && sum.length < 1 && a < 1)
       ) {
         sum.push(a);
@@ -280,9 +326,9 @@ function checkPuzzle() {
     let a = 0;
 
     for (let j = 0; j < dim; j++) {
-      a += arr[i][j];
+      if (arr[i][j] === CellEnum.FILLED) a++;
       if (
-        (a > 0 && (arr[i][j] === 0 || j === dim - 1)) ||
+        (a > 0 && (arr[i][j] === CellEnum.CROSSED || j === dim - 1)) ||
         (a < 1 && j === dim - 1 && sum.length < 1)
       ) {
         sum.push(a);
@@ -345,29 +391,33 @@ function checkPuzzle() {
 }
 
 /**
- * Toggles the state of the nonogram cell.
+ * Toggles the state of the nonogram CellEnum.
  * @param {HTMLDivElement} box The box inside the `<td>`.
  */
 function toggleSqr(box) {
   const a = DOMAIN.indexOf(box.parentNode.id.charAt(0));
   const b = DOMAIN.indexOf(box.parentNode.id.charAt(1));
 
-  userPuzzle[a][b] = 1 - 1 / userPuzzle[a][b];
+  userPuzzle[a][b] = toggleCell(userPuzzle[a][b]);
 
   switch (userPuzzle[a][b]) {
-    case 0.5: // 0.5 crossed
+    case CellEnum.CROSSED:
       box.style.backgroundColor = '';
       box.style.color = playColor;
       box.textContent = '╳';
       break;
 
-    case -1: // -1 empty
+    case CellEnum.EMPTY:
       box.innerHTML = '';
       break;
 
-    case 2: // 2 filled
+    case CellEnum.FILLED:
       box.style.backgroundColor = playColor;
       box.style.color = playColor;
+      break;
+
+    default:
+      throw new TypeError(`Unknown cell "${cell}"`);
   }
 }
 
@@ -446,9 +496,10 @@ function resetColor() {
 
 /**
  * Creates a matrix with `rows` rows and `cols` columns.
+ * @template {T}
  * @param {number} rows Total number of rows.
  * @param {number} cols Total number of columns.
- * @returns {number[][]}
+ * @returns {!T[][]}
  */
 function matrix(rows, cols) {
   return Array.from({length: rows}, () => Array(cols));
