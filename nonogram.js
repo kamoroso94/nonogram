@@ -391,7 +391,7 @@ function checkPuzzle() {
 }
 
 /**
- * Toggles the state of the nonogram CellEnum.
+ * Toggles the state of the nonogram cell.
  * @param {HTMLDivElement} box The box inside the `<td>`.
  */
 function toggleSqr(box) {
