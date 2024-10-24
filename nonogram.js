@@ -1,46 +1,16 @@
-'use strict';
+import {CellEnum, coerceCell, toggleCell} from './cell.js';
+import {DEFAULT_COLOR} from './color-picker.js';
+/** @import {Cell} from './cell.js' */
 
 const DOMAIN = 'abcdefghijklmnopqrst';
-const COLOR_DEFAULT = 'var(--color-default)';
 
 let mouseBtn = false;
 const keyLegend = {top: [], left: []};
-let playColor = COLOR_DEFAULT;
+let playColor = DEFAULT_COLOR;
 
-/** @typedef {('empty' | 'crossed' | 'filled')} Cell */
-
-/** @enum {Cell} */
-const CellEnum = /** @type {const}*/ ({
-  EMPTY: 'empty',
-  CROSSED: 'crossed',
-  FILLED: 'filled',
-});
-
-/**
- * Coerces a cell value to a defined state.
- * @param {Cell} cell
- * @returns {Cell}
- */
-function coerceCell(cell) {
-  return cell === CellEnum.EMPTY ? CellEnum.CROSSED : cell;
-}
-
-/**
- * Toggles a cell from empty, to filled, to crossed, and then repeat.
- * @param {Cell} cell
- * @returns {Cell}
- */
-function toggleCell(cell) {
-  switch (cell) {
-    case CellEnum.EMPTY:
-      return CellEnum.FILLED;
-    case CellEnum.FILLED:
-      return CellEnum.CROSSED;
-    case CellEnum.CROSSED:
-      return CellEnum.EMPTY;
-    default:
-      throw new TypeError(`Unknown cell "${cell}"`);
-  }
+/** Setter for player color to hook into color picker UI. */
+export function setPlayerColor(color) {
+  playColor = color;
 }
 
 /** @type {number} */
@@ -52,13 +22,20 @@ let userPuzzle;
 /** @type {HTMLTableElement} */
 let nonogram;
 
-window.addEventListener('load', init);
-document.addEventListener('mousedown', () => {
-  mouseBtn = true;
-});
-document.addEventListener('mouseup', () => {
-  mouseBtn = false;
-});
+/**
+ * Initializes the nonogram game.
+ *
+ * Note: Must not be called before the "DOMContentLoaded" document event.
+ */
+export function initializeNonogram() {
+  document.addEventListener('mousedown', () => {
+    mouseBtn = true;
+  });
+  document.addEventListener('mouseup', () => {
+    mouseBtn = false;
+  });
+  init();
+}
 
 /** Initializes the game. */
 function init() {
@@ -141,26 +118,14 @@ function init() {
   dimTag.addEventListener('change', init);
   difTag.addEventListener('change', init);
 
-  const colors = document.querySelectorAll('label[for|=color]');
-
-  for (let i = 0; i < colors.length; i++) {
-    if (colors[i].htmlFor.startsWith('color')) {
-      colors[i].addEventListener('click', (event) => {
-        playColor = `var(--${event.currentTarget.htmlFor})`;
-        document.getElementById('reset1').innerHTML =
-          'Clear ' + event.currentTarget.firstElementChild.title;
-      });
-    }
-  }
-
   document.getElementById('hints').addEventListener('change', (event) => {
     gameHints(event.currentTarget.checked);
   });
   document.getElementById('reset1').addEventListener('click', () => {
-    gameReset(false);
+    gameReset(/* allColors= */ false);
   });
   document.getElementById('reset2').addEventListener('click', () => {
-    gameReset(true);
+    gameReset(/* allColors= */ true);
   });
   document.getElementById('play').addEventListener('click', init);
   document.getElementById('submit').addEventListener('click', checkPuzzle);
@@ -386,7 +351,7 @@ function checkPuzzle() {
     }
   } else {
     alert('You lose!');
-    gameReset(true);
+    gameReset(/* allColors= */ true);
   }
 }
 
@@ -490,8 +455,8 @@ function gameHints(enabled) {
 /** Resets the color picker component. */
 function resetColor() {
   document.getElementById('color-default').checked = true;
-  playColor = COLOR_DEFAULT;
-  document.getElementById('reset1').innerHTML = 'Clear Black';
+  playColor = DEFAULT_COLOR;
+  document.getElementById('reset1').innerHTML = 'Clear default';
 }
 
 /**

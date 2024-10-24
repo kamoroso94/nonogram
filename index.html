@@ -35,7 +35,7 @@
     <link rel="stylesheet" href="color-picker.css" />
     <link rel="stylesheet" href="hint-box.css" />
     <link rel="stylesheet" href="style.css" />
-    <script src="nonogram.js"></script>
+    <script type="module" src="main.js"></script>
   </head>
 
   <body>
@@ -68,59 +68,19 @@
 
       <div class="padded">
         Color:
-
-        <input
-          type="radio"
-          name="color"
-          id="color-default"
-          value="default"
-          checked
-        />
-        <label for="color-default">
-          <div title="Default"></div>
-        </label>
-
-        <input type="radio" name="color" id="color-red" value="red" />
-        <label for="color-red">
-          <div title="Red"></div>
-        </label>
-
-        <input type="radio" name="color" id="color-green" value="green" />
-        <label for="color-green">
-          <div title="Green"></div>
-        </label>
-
-        <input type="radio" name="color" id="color-blue" value="blue" />
-        <label for="color-blue">
-          <div title="Blue"></div>
-        </label>
-
-        <input type="radio" name="color" id="color-orange" value="orange" />
-        <label for="color-orange">
-          <div title="Orange"></div>
-        </label>
-
-        <input type="radio" name="color" id="color-purple" value="purple" />
-        <label for="color-purple">
-          <div title="Purple"></div>
-        </label>
-
-        <input type="radio" name="color" id="color-gray" value="gray" />
-        <label for="color-gray">
-          <div title="Gray"></div>
-        </label>
+        <div id="color-picker-slot"></div>
       </div>
 
       <div class="padded">
-        <label><input type="checkbox" id="hints" /> Enable Hints:</label>
+        <label><input type="checkbox" id="hints" /> Enable hints:</label>
         <div id="hintBox"><em>Hints disabled.</em></div>
       </div>
 
       <div class="padded">
-        <button id="reset1">Clear Color</button>
-        <button id="reset2">Clear All</button>
-        <button id="play">New Game</button>
-        <button id="submit">Submit Answer</button>
+        <button id="reset1">Clear color</button>
+        <button id="reset2">Clear all</button>
+        <button id="play">New game</button>
+        <button id="submit">Submit answer</button>
       </div>
     </section>
 

@@ -23,6 +23,10 @@ label[for|='color'] {
   cursor: default;
 }
 
+label[for|='color']:not(:last-of-type) {
+  margin-right: 4px;
+}
+
 input[id|='color']:checked + label[for|='color'] {
   border-style: solid;
 }
@@ -36,32 +40,4 @@ label[for|='color'] > div {
   width: inherit;
   height: inherit;
   cursor: pointer;
-}
-
-label[for='color-default'] > div {
-  background-color: var(--color-default);
-}
-
-label[for='color-red'] > div {
-  background-color: var(--color-red);
-}
-
-label[for='color-green'] > div {
-  background-color: var(--color-green);
-}
-
-label[for='color-blue'] > div {
-  background-color: var(--color-blue);
-}
-
-label[for='color-orange'] > div {
-  background-color: var(--color-orange);
-}
-
-label[for='color-purple'] > div {
-  background-color: var(--color-purple);
-}
-
-label[for='color-gray'] > div {
-  background-color: var(--color-gray);
 }
