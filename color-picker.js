@@ -10,6 +10,7 @@ export const DEFAULT_COLOR = colorToCssVar('default');
 /**
  * @callback SetPlayerColorCallback
  * @param {string} color
+ * @returns {void}
  */
 
 /**
@@ -17,27 +18,38 @@ export const DEFAULT_COLOR = colorToCssVar('default');
  *
  * Note: Must not be called before the "DOMContentLoaded" document event.
  *
- * @param {string} id The HTML ID of the slot element to replace.
+ * @param {string} selector The CSS selector of the slot element to hydrate.
  * @param {!ColorPickerContext} context Additional context for the color picker.
  */
-export function initializeColorPicker(id, context) {
-  const slot = document.getElementById(id);
+export function initializeColorPicker(
+  selector,
+  {resetColorButton, setPlayerColor}
+) {
+  const slot = document.querySelector(selector);
   const fragment = document.createDocumentFragment();
   for (const color of COLORS) {
-    fragment.append(renderColor(color, context));
+    fragment.append(renderColor(color));
   }
-  slot.replaceWith(fragment);
+
+  slot.append(fragment);
+  slot.addEventListener('click', (event) => {
+    const colorLabel = event.target.closest('label[for|="color"]');
+    if (!slot.contains(colorLabel)) return;
+
+    const color = colorLabel.htmlFor.replace('color-', '');
+    setPlayerColor(colorToCssVar(color));
+    resetColorButton.textContent = `Clear ${color}`;
+  });
 }
 
 /**
  * Renders the color input and label pair.
  * @param {string} color
- * @param {!ColorPickerContext} context
  * @return {!DocumentFragment}
  */
-function renderColor(color, context) {
+function renderColor(color) {
   const fragment = document.createDocumentFragment();
-  fragment.append(renderColorInput(color), renderColorLabel(color, context));
+  fragment.append(renderColorInput(color), renderColorLabel(color));
   return fragment;
 }
 
@@ -59,19 +71,12 @@ function renderColorInput(color) {
 /**
  * Renders the color label element.
  * @param {string} color
- * @param {!ColorPickerContext} context
  * @returns {!HTMLLabelElement}
  */
-function renderColorLabel(color, {resetColorButton, setPlayerColor}) {
+function renderColorLabel(color) {
   const colorLabel = document.createElement('label');
   colorLabel.htmlFor = `color-${color}`;
   colorLabel.append(renderColorBlock(color));
-
-  colorLabel.addEventListener('click', () => {
-    setPlayerColor(colorToCssVar(color));
-    resetColorButton.textContent = `Clear ${color}`;
-  });
-
   return colorLabel;
 }
 

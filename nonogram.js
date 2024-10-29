@@ -1,6 +1,7 @@
 import {CellEnum, coerceCell, toggleCell} from './cell.js';
 import {DEFAULT_COLOR} from './color-picker.js';
 /** @import {Cell} from './cell.js' */
+/** @import {SetPlayerColorCallback} from './color-picker.js' */
 
 const DOMAIN = 'abcdefghijklmnopqrst';
 
@@ -8,10 +9,13 @@ let mouseBtn = false;
 const keyLegend = {top: [], left: []};
 let playColor = DEFAULT_COLOR;
 
-/** Setter for player color to hook into color picker UI. */
-export function setPlayerColor(color) {
+/**
+ * Setter for player color to hook into color picker UI.
+ * @type {!SetPlayerColorCallback}
+ */
+export const setPlayerColor = (color) => {
   playColor = color;
-}
+};
 
 /** @type {number} */
 let dim;

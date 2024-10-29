@@ -10,11 +10,15 @@
   --color-gray: light-dark(#536878, #acb3b9);
 }
 
-input[id|='color'] {
+.color-picker {
+  display: inline-block;
+}
+
+.color-picker input[id|='color'] {
   display: none;
 }
 
-label[for|='color'] {
+.color-picker label[for|='color'] {
   display: inline-block;
   padding: 2px;
   width: 25px;
@@ -23,19 +27,19 @@ label[for|='color'] {
   cursor: default;
 }
 
-label[for|='color']:not(:last-of-type) {
+.color-picker label[for|='color']:not(:last-of-type) {
   margin-right: 4px;
 }
 
-input[id|='color']:checked + label[for|='color'] {
+.color-picker input[id|='color']:checked + label[for|='color'] {
   border-style: solid;
 }
 
-input[id|='color'] + label[for|='color']:hover {
+.color-picker input[id|='color'] + label[for|='color']:hover {
   background: light-dark(#eee, #111);
 }
 
-label[for|='color'] > div {
+.color-picker label[for|='color'] > div {
   display: inline-block;
   width: inherit;
   height: inherit;
