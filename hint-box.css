@@ -2,11 +2,11 @@ label {
   cursor: pointer;
 }
 
-#hintBox {
+#hint-box {
   padding: 5px;
   border: 1px solid light-dark(#666, #777);
 }
 
-#hintBox em {
-  color: light-dark(#666, #777);
+#hint-box em {
+  color: light-dark(#666, #aaa);
 }

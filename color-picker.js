@@ -1,110 +1,105 @@
-const COLORS = ['default', 'red', 'green', 'blue', 'orange', 'purple', 'gray'];
-export const DEFAULT_COLOR = colorToCssVar('default');
+import {assertExists, assertInstance, queryElement} from './asserts.js';
+import {colorToCssVar, DEFAULT_COLOR} from './colors.js';
+import {renderColorPicker} from './render-color-picker.js';
 
 /**
- * @typedef {object} ColorPickerContext
- * @property {!HTMLButtonElement} resetColorButton
- * @property {!SetPlayerColorCallback} setPlayerColor
+ * @typedef {object} ColorPickerConfig
+ * @property {string} slotSelector
+ * @property {string} clearColorSelector
+ * @property {string} clearAllSelector
  */
 
 /**
- * @callback SetPlayerColorCallback
- * @param {string} color
- * @returns {void}
+ * @event ColorPicker#event:"color.clear"
+ * @type {!CustomEvent<?string>}
+ * @property {?string} detail The selected CSS color to clear if provided,
+ *     otherwise all colors are to be cleared.
  */
 
 /**
- * Initialize the color picker component.
- *
- * Note: Must not be called before the "DOMContentLoaded" document event.
- *
- * @param {string} selector The CSS selector of the slot element to hydrate.
- * @param {!ColorPickerContext} context Additional context for the color picker.
+ * @event ColorPicker#event:"color.change"
+ * @type {!CustomEvent<string>}
+ * @property {string} detail The new CSS color in use.
  */
-export function initializeColorPicker(
-  selector,
-  {resetColorButton, setPlayerColor}
-) {
-  const slot = document.querySelector(selector);
-  const fragment = document.createDocumentFragment();
-  for (const color of COLORS) {
-    fragment.append(renderColor(color));
+
+/**
+ * Encapsulates logic and rendering of the color picker.
+ * @fires ColorPicker#"color.clear"
+ * @fires ColorPicker#"color.change"
+ */
+export class ColorPicker extends EventTarget {
+  /** @type {string} */
+  #playColor = colorToCssVar(DEFAULT_COLOR);
+
+  /** @type {!HTMLButtonElement} */
+  #clearColorButton;
+
+  /**
+   * @param {!ColorPickerConfig} config
+   * @throws {!TypeError} When any of the selectors fail to match an element.
+   */
+  constructor({slotSelector, clearColorSelector, clearAllSelector}) {
+    super();
+
+    const slot = queryElement(slotSelector);
+    slot.append(renderColorPicker());
+
+    this.#clearColorButton = assertInstance(
+      queryElement(clearColorSelector),
+      HTMLButtonElement
+    );
+    this.#clearColorButton.addEventListener('click', () => {
+      this.dispatchEvent(
+        new CustomEvent('color.clear', {detail: this.playColor})
+      );
+    });
+
+    queryElement(clearAllSelector).addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('color.clear', {detail: null}));
+    });
+
+    // Add color picker handling
+    slot.addEventListener('click', (event) => {
+      const colorLabel = /** @type {?HTMLLabelElement} */ (
+        /** @type {!Element} */ (event.target).closest('label[for|="color"]')
+      );
+      if (!slot.contains(colorLabel)) return;
+
+      const color = /** @type {!HTMLLabelElement} */ (
+        colorLabel
+      ).htmlFor.replace('color-', '');
+      this.#changeColor(color, {fromEvent: true});
+      this.#clearColorButton.textContent = `Clear ${color}`;
+    });
   }
 
-  slot.append(fragment);
-  slot.addEventListener('click', (event) => {
-    const colorLabel = event.target.closest('label[for|="color"]');
-    if (!slot.contains(colorLabel)) return;
+  /** The current CSS color in play. */
+  get playColor() {
+    return this.#playColor;
+  }
 
-    const color = colorLabel.htmlFor.replace('color-', '');
-    setPlayerColor(colorToCssVar(color));
-    resetColorButton.textContent = `Clear ${color}`;
-  });
-}
+  /** Resets the color picker back to the default state. */
+  reset() {
+    /** @type {!HTMLInputElement} */ (
+      queryElement(`#color-${DEFAULT_COLOR}`)
+    ).checked = true;
+    this.#clearColorButton.textContent = `Clear ${DEFAULT_COLOR}`;
+    this.#changeColor(DEFAULT_COLOR);
+  }
 
-/**
- * Renders the color input and label pair.
- * @param {string} color
- * @return {!DocumentFragment}
- */
-function renderColor(color) {
-  const fragment = document.createDocumentFragment();
-  fragment.append(renderColorInput(color), renderColorLabel(color));
-  return fragment;
-}
-
-/**
- * Renders the color input element.
- * @param {string} color
- * @returns {!HTMLInputElement}
- */
-function renderColorInput(color) {
-  const colorInput = document.createElement('input');
-  colorInput.type = 'radio';
-  colorInput.name = 'color';
-  colorInput.id = `color-${color}`;
-  colorInput.value = color;
-  if (color === 'default') colorInput.defaultChecked = true;
-  return colorInput;
-}
-
-/**
- * Renders the color label element.
- * @param {string} color
- * @returns {!HTMLLabelElement}
- */
-function renderColorLabel(color) {
-  const colorLabel = document.createElement('label');
-  colorLabel.htmlFor = `color-${color}`;
-  colorLabel.append(renderColorBlock(color));
-  return colorLabel;
-}
-
-/**
- * Renders the color block element.
- * @param {string} color
- * @returns {!HMTLDivElement}
- */
-function renderColorBlock(color) {
-  const colorBlock = document.createElement('div');
-  const title = capitalize(color);
-  colorBlock.title = title;
-  colorBlock.style.backgroundColor = colorToCssVar(color);
-  return colorBlock;
-}
-
-/**
- * Returns the CSS custom property corresponding to this color name.
- * @param {string} color
- */
-function colorToCssVar(color) {
-  return `var(--color-${color})`;
-}
-
-/**
- * Capitalizes the first character of `text`.
- * @param {string} text
- */
-function capitalize(text) {
-  return text[0].toUpperCase() + text.slice(1);
+  /**
+   * @param {string} color
+   * @param {object} [options={}]
+   * @param {boolean} [options.fromEvent]
+   * @fires ColorPicker#"color.change" Whenever `options.fromEvent` is
+   *     provided.
+   */
+  #changeColor(color, {fromEvent} = {}) {
+    this.#playColor = colorToCssVar(color);
+    if (fromEvent) {
+      this.dispatchEvent(
+        new CustomEvent('color.change', {detail: this.playColor})
+      );
+    }
+  }
 }

@@ -1,7 +1,7 @@
 /** @typedef {('empty' | 'crossed' | 'filled')} Cell */
 
 /** @enum {Cell} The state of a nonogram cell. */
-export const CellEnum = /** @type {const}*/ ({
+export const CellEnum = /** @type {const} */ ({
   EMPTY: 'empty',
   CROSSED: 'crossed',
   FILLED: 'filled',

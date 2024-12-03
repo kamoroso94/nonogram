@@ -1,4 +1,4 @@
-#nonogram {
+#nonogram-game {
   border-collapse: collapse;
   line-height: normal;
   user-select: none;
@@ -7,13 +7,13 @@
   -ms-user-select: none;
 }
 
-#nonogram tr:first-of-type th {
+#nonogram-game tr:first-of-type th {
   padding: 0 0 2px;
   text-align: center;
   vertical-align: bottom;
 }
 
-#nonogram th {
+#nonogram-game th {
   padding: 0 2px 0 0;
   border: 2px solid light-dark(#000, #fff);
   background-color: light-dark(#fff, #1b1b1b);
@@ -23,7 +23,7 @@
   cursor: default;
 }
 
-#nonogram td {
+#nonogram-game td {
   padding: 2px;
   width: 25px;
   height: 25px;
@@ -33,17 +33,17 @@
   vertical-align: middle;
 }
 
-#nonogram td:not(.empty):hover {
+#nonogram-game td:not(.empty):hover {
   background-color: light-dark(#eee, #444);
 }
 
-#nonogram td.empty {
+#nonogram-game td.empty {
   border-top: none;
   border-left: none;
   visibility: hidden;
 }
 
-#nonogram td div {
+#nonogram-game td div {
   width: inherit;
   height: inherit;
   font-weight: bold;

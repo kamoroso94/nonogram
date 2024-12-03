@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
   <head>
     <title>Nonogram</title>
     <meta charset="utf-8" />
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" href="icons/favicon-32.png" />
     <link rel="icon" type="image/png" href="icons/favicon-64.png" />
     <link rel="icon" type="image/png" href="icons/favicon-128.png" />
-    <!-- Cutsom -->
+    <!-- Custom -->
     <link rel="stylesheet" href="nonogram.css" />
     <link rel="stylesheet" href="color-picker.css" />
     <link rel="stylesheet" href="hint-box.css" />
@@ -41,7 +41,7 @@
   <body>
     <section>
       <h1>Nonogram</h1>
-      <table id="nonogram">
+      <table id="nonogram-game">
         <tr>
           <td class="empty"></td>
         </tr>
@@ -49,7 +49,7 @@
 
       <div class="padded">
         Dimensions:
-        <select id="dimensions">
+        <select id="dimensions-select">
           <option value="5" selected>5×5 - Beginner</option>
           <option value="10">10×10 - Intermediate</option>
           <option value="15">15×15 - Advanced</option>
@@ -59,7 +59,7 @@
 
       <div class="padded">
         Difficulty:
-        <select id="difficulty">
+        <select id="difficulty-select">
           <option value="0.6">Easy</option>
           <option value="0.5" selected>Medium</option>
           <option value="0.4">Hard</option>
@@ -68,19 +68,22 @@
 
       <div class="padded">
         Color:
-        <div class="color-picker"></div>
+        <div id="color-picker"></div>
       </div>
 
       <div class="padded">
-        <label><input type="checkbox" id="hints" /> Enable hints:</label>
-        <div id="hintBox"><em>Hints disabled.</em></div>
+        <label>
+          <input type="checkbox" id="hints-setting" />
+          Enable hints:
+        </label>
+        <div id="hint-box"></div>
       </div>
 
       <div class="padded">
-        <button id="reset1">Clear color</button>
-        <button id="reset2">Clear all</button>
-        <button id="play">New game</button>
-        <button id="submit">Submit answer</button>
+        <button type="button" id="clear-color">Clear color</button>
+        <button type="button" id="clear-all">Clear all</button>
+        <button type="button" id="play-game">New game</button>
+        <button type="button" id="submit-answer">Submit answer</button>
       </div>
     </section>
 
