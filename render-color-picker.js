@@ -33,6 +33,7 @@ function renderColorInput(color) {
   colorInput.name = 'color';
   colorInput.id = `color-${color}`;
   colorInput.value = color;
+  colorInput.autocomplete = 'off';
   if (color === DEFAULT_COLOR) colorInput.defaultChecked = true;
   return colorInput;
 }
