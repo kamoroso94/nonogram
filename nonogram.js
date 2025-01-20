@@ -15,6 +15,17 @@ import {
 /** @import {HintBoxConfig, HintBoxHints} from './hint-box.js' */
 
 /**
+ * @param {!HTMLSelectElement} selectControl
+ * @param {string} optionValue
+ * @returns {boolean}
+ */
+function isValidOption(selectControl, optionValue) {
+  return Iterator.from(selectControl.options).some(
+    (option) => option.value === optionValue
+  );
+}
+
+/**
  * @typedef {object} NonogramConfig
  * @property {string} slotSelector
  * @property {string} dimensionsSelector
@@ -88,7 +99,12 @@ export class Nonogram {
       queryElement(dimensionsSelector),
       HTMLSelectElement
     );
+    const initialDimensions = localStorage.getItem('nonogram.dimensions') ?? '';
+    if (isValidOption(dimensionsSelect, initialDimensions)) {
+      dimensionsSelect.value = initialDimensions;
+    }
     dimensionsSelect.addEventListener('change', () => {
+      localStorage.setItem('nonogram.dimensions', dimensionsSelect.value);
       this.#dimensions = parseInt(dimensionsSelect.value);
       this.reset();
     });
@@ -98,7 +114,12 @@ export class Nonogram {
       queryElement(difficultySelector),
       HTMLSelectElement
     );
+    const initialDifficulty = localStorage.getItem('nonogram.difficulty') ?? '';
+    if (isValidOption(difficultySelect, initialDifficulty)) {
+      difficultySelect.value = initialDifficulty;
+    }
     difficultySelect.addEventListener('change', () => {
+      localStorage.setItem('nonogram.difficulty', difficultySelect.value);
       this.#difficulty = parseFloat(difficultySelect.value);
       this.reset();
     });
