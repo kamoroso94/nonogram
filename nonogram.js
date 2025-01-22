@@ -222,7 +222,7 @@ export class Nonogram {
         const cellBox = /** @type {!HTMLElement} */ (
           queryElement(`#${getCellId(row, col)} > :only-child`)
         );
-        if (!color || cellBox.style.color === color) {
+        if (!color || cellBox.style.getPropertyValue('--color') === color) {
           this.#toggleCellBox(row, col, CellEnum.EMPTY);
         }
       }
@@ -255,19 +255,15 @@ export class Nonogram {
    * @param {Cell} [forcedValue]
    * @param {string} [forcedColor] Defaults to play color.
    */
-  #toggleCellBox(
-    row,
-    col,
-    forcedValue,
-    forcedColor = this.#colorPicker.playColor
-  ) {
+  #toggleCellBox(row, col, forcedValue, forcedColor) {
     const cellBox = /** @type {!HTMLElement} */ (
       queryElement(`#${getCellId(row, col)} > :only-child`)
     );
-    const cell = (this.#userPuzzle[row][col] =
-      forcedValue ?? toggleCell(this.#userPuzzle[row][col]));
+    const cell = forcedValue ?? toggleCell(this.#userPuzzle[row][col]);
+    const color = forcedColor ?? this.#colorPicker.playColor;
 
-    cellBox.style.setProperty('--color', forcedColor);
+    this.#userPuzzle[row][col] = cell;
+    cellBox.style.setProperty('--color', color);
     cellBox.classList.toggle('filled', cell === CellEnum.FILLED);
     cellBox.textContent = cell === CellEnum.CROSSED ? '╳' : '';
   }
