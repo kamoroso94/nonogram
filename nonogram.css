@@ -50,3 +50,15 @@
   text-shadow: -1px 0, 0 -1px, 1px 0, 0 1px;
   cursor: pointer;
 }
+
+/*
+  TODO: replace values with `attr(data-color)`.
+  https://developer.mozilla.org/en-US/docs/Web/CSS/attr#browser_compatibility
+*/
+#nonogram-game td div.filled {
+  background-color: var(--color);
+}
+
+#nonogram-game td div:not(.filled) {
+  color: var(--color);
+}

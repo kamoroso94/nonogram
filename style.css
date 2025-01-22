@@ -4,6 +4,10 @@ body {
   line-height: 1.2;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 section:first-of-type {
   margin-top: 0;
 }

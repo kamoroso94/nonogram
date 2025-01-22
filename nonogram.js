@@ -2,6 +2,7 @@ import {queryElement, assertExists, assertInstance} from './asserts.js';
 import {CellEnum, toggleCell} from './cell.js';
 import {ColorPicker} from './color-picker.js';
 import {HintBox} from './hint-box.js';
+import {HistoryWidget} from './history-widget.js';
 import {getColumns, matrix} from './matrix.js';
 import {MouseButton} from './mouse-button.js';
 import {
@@ -13,17 +14,7 @@ import {
 /** @import {Cell} from './cell.js' */
 /** @import {ColorPickerConfig} from './color-picker.js' */
 /** @import {HintBoxConfig, HintBoxHints} from './hint-box.js' */
-
-/**
- * @param {!HTMLSelectElement} selectControl
- * @param {string} optionValue
- * @returns {boolean}
- */
-function isValidOption(selectControl, optionValue) {
-  return Iterator.from(selectControl.options).some(
-    (option) => option.value === optionValue
-  );
-}
+/** @import {HistoryWidgetConfig} from './history-widget.js' */
 
 /**
  * @typedef {object} NonogramConfig
@@ -32,6 +23,7 @@ function isValidOption(selectControl, optionValue) {
  * @property {string} difficultySelector
  * @property {string} restartSelector
  * @property {string} submitSelector
+ * @property {!HistoryWidgetConfig} historyWidgetConfig
  * @property {!ColorPickerConfig} colorPickerConfig
  * @property {!HintBoxConfig} hintBoxConfig
  */
@@ -45,6 +37,20 @@ function isValidOption(selectControl, optionValue) {
  * @property {!number[][]} colClues A list of clues for each column.
  */
 
+/**
+ * @typedef CellState
+ * @property {string} color
+ * @property {!Cell} state
+ * @property {number} row
+ * @property {number} column
+ */
+
+/**
+ * @typedef NonogramAction
+ * @property {!CellState} before
+ * @property {!CellState} after
+ */
+
 /** Component that manages the nonogram puzzle. */
 export class Nonogram {
   /** @type {!HTMLTableElement} */
@@ -53,6 +59,8 @@ export class Nonogram {
   #colorPicker;
   /** @type {!HintBox} */
   #hintBox;
+  /** @type {!HistoryWidget<!NonogramAction>} */
+  #historyWidget;
 
   /** @type {number} */
   #dimensions;
@@ -74,6 +82,7 @@ export class Nonogram {
     difficultySelector,
     restartSelector,
     submitSelector,
+    historyWidgetConfig,
     colorPickerConfig,
     hintBoxConfig,
   }) {
@@ -81,6 +90,16 @@ export class Nonogram {
       queryElement(slotSelector),
       HTMLTableElement
     );
+    this.#historyWidget = new HistoryWidget(historyWidgetConfig);
+    this.#historyWidget.addEventListener('history.undo', (event) => {
+      const action = /** @type {!CustomEvent<NonogramAction>} */ (event).detail;
+      this.#undoAction(action);
+    });
+    this.#historyWidget.addEventListener('history.redo', (event) => {
+      const action = /** @type {!CustomEvent<NonogramAction>} */ (event).detail;
+      this.#redoAction(action);
+    });
+
     this.#colorPicker = new ColorPicker(colorPickerConfig);
     this.#colorPicker.addEventListener('color.clear', (event) => {
       const color = /** @type {!CustomEvent<?string>} */ (event).detail;
@@ -128,10 +147,23 @@ export class Nonogram {
     this.reset();
   }
 
+  /** @param {!NonogramAction} action */
+  #undoAction(action) {
+    const {row, column, state, color} = action.before;
+    this.#toggleCellBox(row, column, state, color);
+  }
+
+  /** @param {!NonogramAction} action */
+  #redoAction(action) {
+    const {row, column, state, color} = action.after;
+    this.#toggleCellBox(row, column, state, color);
+  }
+
   /** Reset to random puzzle and calculate grid clues. */
   reset() {
     this.#colorPicker.reset();
     this.#hintBox.reset();
+    this.#historyWidget.reset();
 
     // Make empty user puzzle and random key puzzle.
     this.#userPuzzle = matrix(
@@ -159,18 +191,23 @@ export class Nonogram {
     // Add nonogram interactivity
     const tdTags = this.#nonogram.querySelectorAll('td:not(.empty)');
     for (const tdTag of tdTags) {
-      const [row, col] = fromCellId(tdTag.id);
+      const [row, column] = fromCellId(tdTag.id);
       const cellBox = assertExists(tdTag.firstElementChild);
+
+      const userUpdateCell = () => {
+        const before = this.#getCellState(row, column);
+        this.#toggleCellBox(row, column);
+        const after = this.#getCellState(row, column);
+        this.#historyWidget.push({before, after});
+      };
 
       // TODO: event delegation
       cellBox.addEventListener('mouseover', (event) => {
         if (/** @type {!MouseEvent} */ (event).buttons & MouseButton.PRIMARY) {
-          this.#toggleCellBox(row, col);
+          userUpdateCell();
         }
       });
-      cellBox.addEventListener('mousedown', () => {
-        this.#toggleCellBox(row, col);
-      });
+      cellBox.addEventListener('mousedown', userUpdateCell);
     }
   }
 
@@ -192,6 +229,22 @@ export class Nonogram {
     }
 
     if (!color) this.#colorPicker.reset();
+    this.#historyWidget.reset();
+  }
+
+  /**
+   * @param {number} row
+   * @param {number} column
+   * @returns {!CellState}
+   */
+  #getCellState(row, column) {
+    const state = this.#userPuzzle[row][column];
+    const cellBox = /** @type {!HTMLElement} */ (
+      queryElement(`#${getCellId(row, column)} > :only-child`)
+    );
+    const color =
+      cellBox.style.getPropertyValue('--color') || this.#colorPicker.playColor;
+    return {row, column, state, color};
   }
 
   /**
@@ -200,38 +253,23 @@ export class Nonogram {
    * @param {number} row
    * @param {number} col
    * @param {Cell} [forcedValue]
+   * @param {string} [forcedColor] Defaults to play color.
    */
-  #toggleCellBox(row, col, forcedValue) {
+  #toggleCellBox(
+    row,
+    col,
+    forcedValue,
+    forcedColor = this.#colorPicker.playColor
+  ) {
     const cellBox = /** @type {!HTMLElement} */ (
       queryElement(`#${getCellId(row, col)} > :only-child`)
     );
     const cell = (this.#userPuzzle[row][col] =
       forcedValue ?? toggleCell(this.#userPuzzle[row][col]));
 
-    // TODO: consider adding data attribute for color to avoid having to query
-    // inline styles.
-    switch (cell) {
-      case CellEnum.CROSSED:
-        cellBox.style.backgroundColor = '';
-        cellBox.style.color = this.#colorPicker.playColor;
-        cellBox.textContent = '╳';
-        break;
-
-      case CellEnum.EMPTY:
-        cellBox.style.backgroundColor = '';
-        cellBox.style.color = '';
-        cellBox.textContent = '';
-        break;
-
-      case CellEnum.FILLED:
-        cellBox.style.backgroundColor = this.#colorPicker.playColor;
-        cellBox.style.color = this.#colorPicker.playColor;
-        cellBox.textContent = '';
-        break;
-
-      default:
-        throw new TypeError(`Unknown cell "${cell}"`);
-    }
+    cellBox.style.setProperty('--color', forcedColor);
+    cellBox.classList.toggle('filled', cell === CellEnum.FILLED);
+    cellBox.textContent = cell === CellEnum.CROSSED ? '╳' : '';
   }
 
   // TODO: avoid use of blocking dialogs
@@ -247,6 +285,17 @@ export class Nonogram {
     alert('You lose! Try again.');
     this.#clear();
   }
+}
+
+/**
+ * @param {!HTMLSelectElement} selectControl
+ * @param {string} optionValue
+ * @returns {boolean}
+ */
+function isValidOption(selectControl, optionValue) {
+  return Iterator.from(selectControl.options).some(
+    (option) => option.value === optionValue
+  );
 }
 
 /**

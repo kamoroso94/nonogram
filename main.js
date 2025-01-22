@@ -1,5 +1,7 @@
 import {Nonogram} from './nonogram.js';
 
+const MAX_HISTORY = 20;
+
 document.addEventListener('DOMContentLoaded', () => {
   void new Nonogram({
     slotSelector: '#nonogram-game',
@@ -7,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     difficultySelector: '#difficulty-select',
     restartSelector: '#play-game',
     submitSelector: '#submit-answer',
+    historyWidgetConfig: {
+      undoSelector: '#undo-action',
+      redoSelector: '#redo-action',
+      maxHistory: MAX_HISTORY,
+    },
     colorPickerConfig: {
       slotSelector: '#color-picker',
       clearColorSelector: '#clear-color',
