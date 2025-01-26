@@ -119,7 +119,7 @@ export class HistoryWidget extends EventTarget {
    * @param {object} [options={}]
    * @param {boolean} [options.fromEvent]
    * @returns {(T | undefined)}
-   * @fires HistoryWidget<T>#"history.undo" If successful and not `options.fromEvent`.
+   * @fires HistoryWidget<T>#"history.undo" If successful and `options.fromEvent`.
    */
   #undo({fromEvent} = {}) {
     const value = this.#history.undo();
@@ -144,7 +144,7 @@ export class HistoryWidget extends EventTarget {
    * @param {object} [options={}]
    * @param {boolean} [options.fromEvent]
    * @returns {(T | undefined)}
-   * @fires HistoryWidget<T>#"history.redo" If successful and not `options.fromEvent`.
+   * @fires HistoryWidget<T>#"history.redo" If successful and `options.fromEvent`.
    */
   #redo({fromEvent} = {}) {
     const value = this.#history.redo();
