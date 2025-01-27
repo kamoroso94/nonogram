@@ -10,15 +10,21 @@ import {HistoryBuffer} from './history-buffer.js';
 
 /**
  * @event HistoryWidget<T>#event:"history.undo"
+ * @template T
  * @type {!CustomEvent<T>}
  * @property {T} detail The history entry being undone.
  */
 
 /**
  * @event HistoryWidget<T>#event:"history.redo"
+ * @template T
  * @type {!CustomEvent<T>}
  * @property {T} detail The history entry being redone.
  */
+
+const isMac =
+  // @ts-ignore https://developer.mozilla.org/en-US/docs/Web/API/Navigator/userAgentData
+  (navigator.userAgentData?.platform ?? navigator.platform).startsWith('Mac');
 
 /**
  * @template T
@@ -64,16 +70,17 @@ export class HistoryWidget extends EventTarget {
     });
 
     document.addEventListener('keypress', (event) => {
-      if (event.altKey || event.metaKey) return;
+      if (event.altKey || (event.metaKey && !isMac)) return;
 
-      if (event.ctrlKey && !event.shiftKey && event.code === 'KeyZ') {
+      const ctrlPressed = isMac ? event.metaKey : event.ctrlKey;
+      if (ctrlPressed && !event.shiftKey && event.code === 'KeyZ') {
         this.#undo({fromEvent: true});
         return;
       }
 
       if (
-        (event.ctrlKey && event.shiftKey && event.code === 'KeyZ') ||
-        (event.ctrlKey && !event.shiftKey && event.code === 'KeyY')
+        (ctrlPressed && event.shiftKey && event.code === 'KeyZ') ||
+        (ctrlPressed && !event.shiftKey && event.code === 'KeyY')
       ) {
         this.#redo({fromEvent: true});
         return;
