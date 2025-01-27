@@ -1,6 +1,6 @@
 import {Nonogram} from './nonogram.js';
 
-const MAX_HISTORY = 20;
+const MAX_HISTORY = 50;
 
 document.addEventListener('DOMContentLoaded', () => {
   void new Nonogram({
