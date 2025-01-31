@@ -1,5 +1,6 @@
 import {assertInstance, queryElement} from './asserts.js';
 import {HistoryBuffer} from './history-buffer.js';
+import {addShortcut, addShortcuts} from './shortcut-service.js';
 
 /**
  * @typedef HistoryWidgetConfig
@@ -21,10 +22,6 @@ import {HistoryBuffer} from './history-buffer.js';
  * @type {!CustomEvent<T>}
  * @property {T} detail The history entry being redone.
  */
-
-const isMac =
-  // @ts-ignore https://developer.mozilla.org/en-US/docs/Web/API/Navigator/userAgentData
-  (navigator.userAgentData?.platform ?? navigator.platform).startsWith('Mac');
 
 /**
  * @template T
@@ -69,22 +66,13 @@ export class HistoryWidget extends EventTarget {
       this.#redo({fromEvent: true});
     });
 
-    document.addEventListener('keypress', (event) => {
-      if (event.altKey || (event.metaKey && !isMac)) return;
-
-      const ctrlPressed = isMac ? event.metaKey : event.ctrlKey;
-      if (ctrlPressed && !event.shiftKey && event.code === 'KeyZ') {
-        this.#undo({fromEvent: true});
-        return;
-      }
-
-      if (
-        (ctrlPressed && event.shiftKey && event.code === 'KeyZ') ||
-        (ctrlPressed && !event.shiftKey && event.code === 'KeyY')
-      ) {
-        this.#redo({fromEvent: true});
-        return;
-      }
+    addShortcut('Ctrl+Z', (event) => {
+      event.preventDefault();
+      this.#undo({fromEvent: true});
+    });
+    addShortcuts(['Ctrl+Shift+Z', 'Ctrl+Y'], (event) => {
+      event.preventDefault();
+      this.#redo({fromEvent: true});
     });
   }
 
