@@ -90,15 +90,10 @@ export class Nonogram {
       queryElement(slotSelector),
       HTMLTableElement
     );
+    this.#wireNonogram();
+
     this.#historyWidget = new HistoryWidget(historyWidgetConfig);
-    this.#historyWidget.addEventListener('history.undo', (event) => {
-      const action = /** @type {!CustomEvent<NonogramAction>} */ (event).detail;
-      this.#undoAction(action);
-    });
-    this.#historyWidget.addEventListener('history.redo', (event) => {
-      const action = /** @type {!CustomEvent<NonogramAction>} */ (event).detail;
-      this.#redoAction(action);
-    });
+    this.#wireHistoryWidget();
 
     this.#colorPicker = new ColorPicker(colorPickerConfig);
     this.#colorPicker.addEventListener('color.clear', (event) => {
@@ -118,44 +113,86 @@ export class Nonogram {
       queryElement(dimensionsSelector),
       HTMLSelectElement
     );
+    this.#wireDimensionsSelect(dimensionsSelect);
+
+    const difficultySelect = assertInstance(
+      queryElement(difficultySelector),
+      HTMLSelectElement
+    );
+    this.#wireDifficultySelect(difficultySelect);
+
+    this.reset();
+  }
+
+  #wireNonogram() {
+    /** @param {!MouseEvent} event */
+    const userUpdateCell = (event) => {
+      const element = /** @type {!Element} */ (event.target);
+      if (!element.matches('td:not(.empty) > :only-child')) return;
+      if (!(event.buttons & MouseButton.PRIMARY)) return;
+
+      // @ts-ignore Matches descendant selector above.
+      const [row, column] = fromCellId(element.parentElement.id);
+      const before = this.#getCellState(row, column);
+      this.#toggleCellBox(row, column);
+      const after = this.#getCellState(row, column);
+      this.#historyWidget.push({before, after});
+    };
+
+    this.#nonogram.addEventListener('mousedown', userUpdateCell);
+    this.#nonogram.addEventListener('mouseover', userUpdateCell);
+  }
+
+  #wireHistoryWidget() {
+    this.#historyWidget.addEventListener('history.undo', (event) => {
+      const action = /** @type {!CustomEvent<NonogramAction>} */ (event).detail;
+      this.#undoAction(action);
+    });
+    this.#historyWidget.addEventListener('history.redo', (event) => {
+      const action = /** @type {!CustomEvent<NonogramAction>} */ (event).detail;
+      this.#redoAction(action);
+    });
+  }
+
+  /** @param {!HTMLSelectElement} dimensionsSelect */
+  #wireDimensionsSelect(dimensionsSelect) {
     const initialDimensions = localStorage.getItem('nonogram.dimensions') ?? '';
     if (isValidOption(dimensionsSelect, initialDimensions)) {
       dimensionsSelect.value = initialDimensions;
     }
+
     dimensionsSelect.addEventListener('change', () => {
       localStorage.setItem('nonogram.dimensions', dimensionsSelect.value);
       this.#dimensions = parseInt(dimensionsSelect.value);
       this.reset();
     });
     this.#dimensions = parseInt(dimensionsSelect.value);
+  }
 
-    const difficultySelect = assertInstance(
-      queryElement(difficultySelector),
-      HTMLSelectElement
-    );
+  /** @param {!HTMLSelectElement} difficultySelect */
+  #wireDifficultySelect(difficultySelect) {
     const initialDifficulty = localStorage.getItem('nonogram.difficulty') ?? '';
     if (isValidOption(difficultySelect, initialDifficulty)) {
       difficultySelect.value = initialDifficulty;
     }
+
     difficultySelect.addEventListener('change', () => {
       localStorage.setItem('nonogram.difficulty', difficultySelect.value);
       this.#difficulty = parseFloat(difficultySelect.value);
       this.reset();
     });
     this.#difficulty = parseFloat(difficultySelect.value);
-
-    this.reset();
   }
 
   /** @param {!NonogramAction} action */
-  #undoAction(action) {
-    const {row, column, state, color} = action.before;
+  #undoAction({before}) {
+    const {row, column, state, color} = before;
     this.#toggleCellBox(row, column, state, color);
   }
 
   /** @param {!NonogramAction} action */
-  #redoAction(action) {
-    const {row, column, state, color} = action.after;
+  #redoAction({after}) {
+    const {row, column, state, color} = after;
     this.#toggleCellBox(row, column, state, color);
   }
 
@@ -187,28 +224,6 @@ export class Nonogram {
   #render() {
     this.#nonogram.replaceChildren(renderNonogram(this.#dimensions));
     renderGridClues(this.#nonogram, this.#keyGridClues);
-
-    // Add nonogram interactivity
-    const tdTags = this.#nonogram.querySelectorAll('td:not(.empty)');
-    for (const tdTag of tdTags) {
-      const [row, column] = fromCellId(tdTag.id);
-      const cellBox = assertExists(tdTag.firstElementChild);
-
-      const userUpdateCell = () => {
-        const before = this.#getCellState(row, column);
-        this.#toggleCellBox(row, column);
-        const after = this.#getCellState(row, column);
-        this.#historyWidget.push({before, after});
-      };
-
-      // TODO: event delegation
-      cellBox.addEventListener('mouseover', (event) => {
-        if (/** @type {!MouseEvent} */ (event).buttons & MouseButton.PRIMARY) {
-          userUpdateCell();
-        }
-      });
-      cellBox.addEventListener('mousedown', userUpdateCell);
-    }
   }
 
   /**
