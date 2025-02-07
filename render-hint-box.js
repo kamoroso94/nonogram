@@ -7,6 +7,9 @@
  * @returns {!DocumentFragment}
  */
 export function renderHintBox({rows, cols}, enabled) {
+  rows = rows.toSorted((a, b) => a - b);
+  cols = cols.toSorted((a, b) => a - b);
+
   const fragment = document.createDocumentFragment();
   if (!enabled) {
     fragment.append(renderEmphasizedMessage('Hints disabled.'));
@@ -60,7 +63,43 @@ const listFormatter = new Intl.ListFormat('en-US', {
  * @returns {string}
  */
 function formatHints(hints) {
-  return (
-    listFormatter.format(hints.map((x) => x.toLocaleString('en-US'))) + '.'
-  );
+  return listFormatter.format(formatNumberListParts(hints)) + '.';
+}
+
+/**
+ * @param {number} start
+ * @param {number} end
+ * @yields {string}
+ */
+function* formatRange(start, end) {
+  if (end - start >= 2) {
+    yield `${start.toLocaleString('en-US')}–${end.toLocaleString('en-US')}`;
+    return;
+  }
+
+  yield start.toLocaleString('en-US');
+  if (start !== end) yield end.toLocaleString('en-US');
+}
+
+/**
+ * Formats a sorted list of numbers into a list of ranges, e.g. "1-3", "5", "6".
+ * @param {!number[]} list
+ * @yields {string}
+ */
+function* formatNumberListParts(list) {
+  if (!list.length) return;
+
+  let rangeStart = list[0],
+    rangeEnd = list[0];
+  for (const value of list.values().drop(1)) {
+    if (rangeEnd + 1 === value) {
+      rangeEnd = value;
+      continue;
+    }
+
+    yield* formatRange(rangeStart, rangeEnd);
+    rangeStart = rangeEnd = value;
+  }
+
+  yield* formatRange(rangeStart, rangeEnd);
 }
