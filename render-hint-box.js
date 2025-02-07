@@ -67,6 +67,7 @@ function formatHints(hints) {
 }
 
 /**
+ * Formats a range, e.g. "1–3"; "6", "7"; or "11".
  * @param {number} start
  * @param {number} end
  * @yields {string}
@@ -82,7 +83,7 @@ function* formatRange(start, end) {
 }
 
 /**
- * Formats a sorted list of numbers into a list of ranges, e.g. "1-3", "5", "6".
+ * Formats a sorted list of numbers into a list of ranges.
  * @param {!number[]} list
  * @yields {string}
  */
