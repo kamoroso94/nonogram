@@ -110,12 +110,27 @@ function renderNonogramGrid(size) {
     for (let col = 0; col < size; col++) {
       const td = document.createElement('td');
       td.id = getCellId(row, col);
-      td.append(document.createElement('div'));
+      td.append(renderNonogramCell());
       tr.append(td);
     }
     fragment.append(tr);
   }
   return fragment;
+}
+
+/**
+ * Renders a nonogram cell with a hidden cross.
+ * @returns {!HTMLDivElement}
+ */
+function renderNonogramCell() {
+  const cell = document.createElement('div');
+  cell.classList.add('cell');
+  const cross = document.createElement('span');
+  cross.hidden = true;
+  cross.classList.add('cross', 'material-symbols-sharp');
+  cross.textContent = 'close';
+  cell.append(cross);
+  return cell;
 }
 
 /**

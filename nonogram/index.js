@@ -13,9 +13,9 @@ import {
   renderGridClues,
 } from './render.js';
 
-/** @import {ColorPickerConfig} from '../color-picker' */
-/** @import {HintBoxConfig, HintBoxHints} from '../hint-box' */
-/** @import {HistoryWidgetConfig} from '../history-widget' */
+/** @import {ColorPickerConfig} from '../color-picker/index.js' */
+/** @import {HintBoxConfig, HintBoxHints} from '../hint-box/index.js' */
+/** @import {HistoryWidgetConfig} from '../history-widget/index.js' */
 /** @import {Cell} from './cell.js' */
 
 /**
@@ -129,12 +129,15 @@ export class Nonogram {
   #wireNonogram() {
     /** @param {!MouseEvent} event */
     const userUpdateCell = (event) => {
-      const element = /** @type {!Element} */ (event.target);
-      if (!element.matches('td:not(.empty) > :only-child')) return;
       if (!(event.buttons & MouseButton.PRIMARY)) return;
 
-      // @ts-ignore Matches descendant selector above.
-      const [row, column] = fromCellId(element.parentElement.id);
+      const element = /** @type {!Element} */ (event.target).closest('.cell');
+      if (!element) return;
+
+      event.stopPropagation();
+      const [row, column] = fromCellId(
+        /** @type {!HTMLElement} */ (element.parentElement).id
+      );
       const before = this.#getCellState(row, column);
       this.#toggleCellBox(row, column);
       const after = this.#getCellState(row, column);
@@ -282,7 +285,9 @@ export class Nonogram {
     this.#userPuzzle[row][col] = cell;
     cellBox.style.setProperty('--color', color);
     cellBox.classList.toggle('filled', cell === CellEnum.FILLED);
-    cellBox.textContent = cell === CellEnum.CROSSED ? '╳' : '';
+
+    const crossIcon = assertInstance(cellBox.firstElementChild, HTMLElement);
+    crossIcon.hidden = cell !== CellEnum.CROSSED;
   }
 
   // TODO: avoid use of blocking dialogs

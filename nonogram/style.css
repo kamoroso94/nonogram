@@ -1,4 +1,6 @@
 #nonogram-game {
+  --icon-cross-font-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 40;
+
   border-collapse: collapse;
   line-height: normal;
   user-select: none;
@@ -7,14 +9,20 @@
   -ms-user-select: none;
 }
 
+@media (prefers-color-scheme: dark) {
+  #nonogram-game {
+    --icon-cross-font-settings: 'FILL' 1, 'wght' 700, 'GRAD' -25, 'opsz' 40;
+  }
+}
+
 #nonogram-game tr:first-of-type th {
-  padding: 0 0 2px;
+  padding: 2px 0;
   text-align: center;
   vertical-align: bottom;
 }
 
 #nonogram-game th {
-  padding: 0 2px 0 0;
+  padding: 0 2px;
   border: 2px solid light-dark(#000, #fff);
   background-color: light-dark(#fff, #1b1b1b);
   text-align: right;
@@ -23,10 +31,16 @@
   cursor: default;
 }
 
+#nonogram-game th.loading {
+  border: none;
+  font-weight: normal;
+  font-style: italic;
+}
+
 #nonogram-game td {
   padding: 2px;
-  width: 25px;
-  height: 25px;
+  width: 26px;
+  height: 26px;
   border: 2px solid light-dark(#000, #fff);
   background-color: light-dark(#fff, #222);
   text-align: center;
@@ -43,22 +57,33 @@
   visibility: hidden;
 }
 
-#nonogram-game td div {
+#nonogram-game td .cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: inherit;
   height: inherit;
-  font-weight: bold;
-  text-shadow: -1px 0, 0 -1px, 1px 0, 0 1px;
   cursor: pointer;
+}
+
+#nonogram-game td .cell .material-symbols-sharp {
+  pointer-events: none;
+}
+
+#nonogram-game td .cell .cross {
+  font-variation-settings: var(--icon-cross-font-settings);
+  font-size: 32px;
 }
 
 /*
   TODO: replace values with `attr(data-color)`.
   https://developer.mozilla.org/en-US/docs/Web/CSS/attr#browser_compatibility
 */
-#nonogram-game td div.filled {
+#nonogram-game td .cell.filled {
   background-color: var(--color);
+  color: light-dark(#000, #fff);
 }
 
-#nonogram-game td div:not(.filled) {
+#nonogram-game td .cell:not(.filled) {
   color: var(--color);
 }
