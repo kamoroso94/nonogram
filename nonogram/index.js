@@ -2,10 +2,11 @@ import {queryElement, assertInstance} from '../utils/asserts.js';
 import {ColorPicker} from '../color-picker/index.js';
 import {HintBox} from '../hint-box/index.js';
 import {HistoryWidget} from '../history-widget/index.js';
+import {isEnabled, NONOGRAM_LOCKING} from '../utils/experiments.js';
 import {getColumns, matrix} from '../utils/matrix.js';
 import {MouseButton} from '../utils/mouse-button.js';
 
-import {CellEnum, toggleCell} from './cell.js';
+import {CellEnum, coerceCell, toggleCell} from './cell.js';
 import {
   fromCellId,
   getCellId,
@@ -100,7 +101,7 @@ export class Nonogram {
     this.#colorPicker = new ColorPicker(colorPickerConfig);
     this.#colorPicker.addEventListener('color.clear', (event) => {
       const color = /** @type {!CustomEvent<?string>} */ (event).detail;
-      this.#clear(color ?? undefined);
+      this.#clear({color: color ?? undefined});
     });
     this.#hintBox = new HintBox(hintBoxConfig);
 
@@ -127,25 +128,57 @@ export class Nonogram {
   }
 
   #wireNonogram() {
-    /** @param {!MouseEvent} event */
-    const userUpdateCell = (event) => {
-      if (!(event.buttons & MouseButton.PRIMARY)) return;
+    this.#nonogram.addEventListener('mousedown', this.#userToggleCell);
+    this.#nonogram.addEventListener('mouseover', this.#userToggleCell);
+    this.#nonogram.addEventListener('contextmenu', (event) => {
+      this.#userUpdateCell(event, /* locking= */ true);
+    });
+  }
 
-      const element = /** @type {!Element} */ (event.target).closest('.cell');
-      if (!element) return;
+  /** @param {!MouseEvent} event */
+  #userToggleCell = (event) => {
+    const primaryPressed = !!(event.buttons & MouseButton.PRIMARY);
+    const secondaryPressed = !!(event.buttons & MouseButton.SECONDARY);
+    // Only process events with one mouse button down
+    if (primaryPressed === secondaryPressed) {
+      cancelGridEvents(event);
+      return;
+    }
 
-      event.stopPropagation();
-      const [row, column] = fromCellId(
-        /** @type {!HTMLElement} */ (element.parentElement).id
-      );
-      const before = this.#getCellState(row, column);
-      this.#toggleCellBox(row, column);
-      const after = this.#getCellState(row, column);
-      this.#historyWidget.push({before, after});
-    };
+    this.#userUpdateCell(event, /* locking= */ secondaryPressed);
+  };
 
-    this.#nonogram.addEventListener('mousedown', userUpdateCell);
-    this.#nonogram.addEventListener('mouseover', userUpdateCell);
+  /**
+   * @param {!MouseEvent} event
+   * @param {boolean} locking
+   */
+  #userUpdateCell(event, locking) {
+    if (locking && !isEnabled(NONOGRAM_LOCKING)) return;
+
+    // Prevent duplicate event handling on mouse-driven devices while still
+    // preventing context menu.
+    cancelGridEvents(event);
+    if (
+      event.type === 'contextmenu' &&
+      event instanceof PointerEvent &&
+      event.pointerType === 'mouse'
+    ) {
+      return;
+    }
+
+    const element = /** @type {!Element} */ (event.target);
+    const cellBox = element.closest('td .cell');
+    if (!cellBox) return;
+
+    const [row, column] = fromCellId(
+      /** @type {!HTMLElement} */ (cellBox.parentElement).id
+    );
+    const before = this.#getCellState(row, column);
+    if (!this.#toggleCellBox(row, column, {locking})) return;
+
+    // Change is committed.
+    const after = this.#getCellState(row, column);
+    this.#historyWidget.push({before, after});
   }
 
   #wireHistoryWidget() {
@@ -192,13 +225,13 @@ export class Nonogram {
   /** @param {!NonogramAction} action */
   #undoAction({before}) {
     const {row, column, state, color} = before;
-    this.#toggleCellBox(row, column, state, color);
+    this.#toggleCellBox(row, column, {forcedState: state, forcedColor: color});
   }
 
   /** @param {!NonogramAction} action */
   #redoAction({after}) {
     const {row, column, state, color} = after;
-    this.#toggleCellBox(row, column, state, color);
+    this.#toggleCellBox(row, column, {forcedState: state, forcedColor: color});
   }
 
   /** Reset to random puzzle and calculate grid clues. */
@@ -234,21 +267,46 @@ export class Nonogram {
   /**
    * Clears the `#userPuzzle` and `#nonogram` of a specific `color` if provided,
    * otherwise clears all colors.
-   * @param {string} [color] Clears a specific CSS color when provided.
+   * @param {object} [options={}]
+   * @param {string} [options.color] Clears a specific CSS color when provided.
+   * @param {boolean} [options.force] Whether to forcefully clear locked cells.
    */
-  #clear(color) {
+  #clear({color, force} = {}) {
+    /** @type {!Array<[number, number]>} */
+    const lockedCells = [];
+    let cellsCleared = false;
     for (let row = 0; row < this.#dimensions; row++) {
       for (let col = 0; col < this.#dimensions; col++) {
         const cellBox = /** @type {!HTMLElement} */ (
-          queryElement(`#${getCellId(row, col)} > :only-child`)
+          queryElement(`#${getCellId(row, col)} > .cell`)
         );
         if (!color || cellBox.style.getPropertyValue('--color') === color) {
-          this.#toggleCellBox(row, col, CellEnum.EMPTY);
+          if (!force && this.#userPuzzle[row][col] === CellEnum.LOCKED) {
+            lockedCells.push([row, col]);
+            continue;
+          }
+
+          const cellCleared = this.#toggleCellBox(row, col, {
+            forcedState: CellEnum.EMPTY,
+          });
+          cellsCleared ||= cellCleared;
         }
       }
     }
 
-    if (!color) this.#colorPicker.reset();
+    // Only clear locked cells if nothing else is cleared.
+    if (!cellsCleared) {
+      for (const [row, col] of lockedCells) {
+        this.#toggleCellBox(row, col, {
+          forcedState: CellEnum.EMPTY,
+        });
+      }
+    }
+
+    // Only reset when "clear all" actually clears everything.
+    if (!color && (!cellsCleared || !lockedCells.length)) {
+      this.#colorPicker.reset();
+    }
     this.#historyWidget.reset();
   }
 
@@ -260,7 +318,7 @@ export class Nonogram {
   #getCellState(row, column) {
     const state = this.#userPuzzle[row][column];
     const cellBox = /** @type {!HTMLElement} */ (
-      queryElement(`#${getCellId(row, column)} > :only-child`)
+      queryElement(`#${getCellId(row, column)} > .cell`)
     );
     const color =
       cellBox.style.getPropertyValue('--color') || this.#colorPicker.playColor;
@@ -268,26 +326,50 @@ export class Nonogram {
   }
 
   /**
-   * Toggles the state of the nonogram cell, or sets it to `forcedValue` when
+   * Toggles the state of the nonogram cell, or sets it to `forcedState` when
    * provided.
    * @param {number} row
    * @param {number} col
-   * @param {Cell} [forcedValue]
-   * @param {string} [forcedColor] Defaults to play color.
+   * @param {object} [options={}]
+   * @param {boolean} [options.locking] Whether to toggle locking.
+   * @param {Cell} [options.forcedState] A cell state to force.
+   * @param {string} [options.forcedColor] Defaults to play color.
+   * @returns {boolean} Whether a change was made.
    */
-  #toggleCellBox(row, col, forcedValue, forcedColor) {
+  #toggleCellBox(row, col, {locking, forcedState, forcedColor} = {}) {
     const cellBox = /** @type {!HTMLElement} */ (
-      queryElement(`#${getCellId(row, col)} > :only-child`)
+      queryElement(`#${getCellId(row, col)} > .cell`)
     );
-    const cell = forcedValue ?? toggleCell(this.#userPuzzle[row][col]);
+    const initialState = this.#userPuzzle[row][col];
+    const finalState = forcedState ?? toggleCell(initialState, locking);
+    if (initialState === finalState) return false;
+
     const color = forcedColor ?? this.#colorPicker.playColor;
 
-    this.#userPuzzle[row][col] = cell;
-    cellBox.style.setProperty('--color', color);
-    cellBox.classList.toggle('filled', cell === CellEnum.FILLED);
+    this.#userPuzzle[row][col] = finalState;
+    // Don't change color when locking unless by force.
+    if (forcedColor || coerceCell(initialState) !== coerceCell(finalState)) {
+      cellBox.style.setProperty('--color', color);
+    }
+    cellBox.classList.toggle(
+      'filled',
+      coerceCell(finalState) === CellEnum.FILLED
+    );
+    cellBox.classList.toggle('locked', finalState === CellEnum.LOCKED);
 
-    const crossIcon = assertInstance(cellBox.firstElementChild, HTMLElement);
-    crossIcon.hidden = cell !== CellEnum.CROSSED;
+    const crossIcon = assertInstance(
+      cellBox.querySelector('.cross'),
+      HTMLElement
+    );
+    crossIcon.hidden = finalState !== CellEnum.CROSSED;
+
+    const lockIcon = assertInstance(
+      cellBox.querySelector('.lock'),
+      HTMLElement
+    );
+    lockIcon.hidden = finalState !== CellEnum.LOCKED;
+
+    return true;
   }
 
   // TODO: avoid use of blocking dialogs
@@ -301,7 +383,16 @@ export class Nonogram {
     }
 
     alert('You lose! Try again.');
-    this.#clear();
+    this.#clear({force: true});
+  }
+}
+
+/** @param {!Event} event */
+function cancelGridEvents(event) {
+  const element = /** @type {!Element} */ (event.target);
+  if (element.closest('td:has(.cell)')) {
+    event.preventDefault();
+    event.stopPropagation();
   }
 }
 
@@ -334,7 +425,7 @@ function gridToClues(grid) {
       let blockSize = 0;
       const /** @type {!number[]} */ lineClue = [];
       for (const cell of line) {
-        if (cell === CellEnum.FILLED) {
+        if (coerceCell(cell) === CellEnum.FILLED) {
           blockSize++;
         } else if (blockSize) {
           lineClue.push(blockSize);

@@ -125,12 +125,32 @@ function renderNonogramGrid(size) {
 function renderNonogramCell() {
   const cell = document.createElement('div');
   cell.classList.add('cell');
-  const cross = document.createElement('span');
-  cross.hidden = true;
-  cross.classList.add('cross', 'material-symbols-sharp');
-  cross.textContent = 'close';
+
+  const cross = renderIcon(MATERIAL_SYMBOL_CLOSE);
+  cross.classList.add('cross');
   cell.append(cross);
+
+  const lock = renderIcon(MATERIAL_SYMBOL_LOCK);
+  lock.classList.add('lock');
+  cell.append(lock);
   return cell;
+}
+
+const MATERIAL_SYMBOL_CLOSE = 'close';
+const MATERIAL_SYMBOL_LOCK = 'lock';
+
+/**
+ * Renders a Material Symbol icon by the given `name`.
+ * @param {string} name
+ * @param {('outlined' | 'rounded' | 'sharp')} [style='sharp']
+ * @returns {!HTMLSpanElement}
+ */
+function renderIcon(name, style = 'sharp') {
+  const icon = document.createElement('span');
+  icon.hidden = true;
+  icon.classList.add(`material-symbols-${style}`);
+  icon.textContent = name;
+  return icon;
 }
 
 /**
