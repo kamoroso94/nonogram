@@ -1,5 +1,5 @@
-import {assertInstance, queryElement} from './asserts.js';
-import {renderHintBox} from './render-hint-box.js';
+import {assertInstance, queryElement} from '../utils/asserts.js';
+import {renderHintBox} from './render.js';
 
 /**
  * @typedef {object} HintBoxConfig

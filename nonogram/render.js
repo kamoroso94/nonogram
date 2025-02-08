@@ -1,4 +1,4 @@
-/** @import {NonogramClues} from './nonogram.js' */
+/** @import {NonogramClues} from './index.js' */
 
 /**
  * Renders the Nonogram table structure.

@@ -1,6 +1,6 @@
-import {assertExists, assertInstance, queryElement} from './asserts.js';
+import {assertInstance, queryElement} from '../utils/asserts.js';
 import {colorToCssVar, DEFAULT_COLOR} from './colors.js';
-import {renderColorPicker} from './render-color-picker.js';
+import {renderColorPicker} from './render.js';
 
 /**
  * @typedef {object} ColorPickerConfig
