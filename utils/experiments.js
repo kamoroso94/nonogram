@@ -1,6 +1,3 @@
-/** Experiment for locking nonogram cells. */
-export const NONOGRAM_LOCKING = 'NONOGRAM_LOCKING';
-
 const experiments = new Set(
   new URL(location.href).searchParams.get('e')?.split(',') ?? []
 );

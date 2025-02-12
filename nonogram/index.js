@@ -2,7 +2,6 @@ import {queryElement, assertInstance} from '../utils/asserts.js';
 import {ColorPicker} from '../color-picker/index.js';
 import {HintBox} from '../hint-box/index.js';
 import {HistoryWidget} from '../history-widget/index.js';
-import {isEnabled, NONOGRAM_LOCKING} from '../utils/experiments.js';
 import {getColumns, matrix} from '../utils/matrix.js';
 import {MouseButton} from '../utils/mouse-button.js';
 
@@ -153,8 +152,6 @@ export class Nonogram {
    * @param {boolean} locking
    */
   #userUpdateCell(event, locking) {
-    if (locking && !isEnabled(NONOGRAM_LOCKING)) return;
-
     // Prevent duplicate event handling on mouse-driven devices while still
     // preventing context menu.
     cancelGridEvents(event);
