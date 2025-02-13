@@ -1,4 +1,4 @@
-/** @import {HintBoxHints} from './index.js' */
+/** @import {HintBoxHints} from './hint-box.js' */
 
 /**
  * Renders the hint box for the nonogram.
