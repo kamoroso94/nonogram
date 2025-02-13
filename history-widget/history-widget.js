@@ -4,9 +4,9 @@ import {addShortcut, addShortcuts} from '../utils/shortcut-service.js';
 
 /**
  * @typedef HistoryWidgetConfig
- * @property {string} undoSelector
- * @property {string} redoSelector
- * @property {number} maxHistory
+ * @property {string} undoSelector Selector for undo button.
+ * @property {string} redoSelector Selector for redo button.
+ * @property {number} maxHistory Maximum history length to support.
  */
 
 /**

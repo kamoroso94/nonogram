@@ -1,63 +1,66 @@
-import {COLORS, colorToCssVar, DEFAULT_COLOR} from './colors.js';
+/** @import {Color} from './color-picker.js'; */
 
 /**
  * Initialize the color picker component.
+ * @param {readonly Color[]} palette
  * @returns {!DocumentFragment}
  */
-export function renderColorPicker() {
+export function renderColorPicker(palette) {
   const fragment = document.createDocumentFragment();
-  for (const color of COLORS) {
-    fragment.append(renderColor(color));
+  for (const [index, color] of palette.entries()) {
+    fragment.append(renderColor(color, index));
   }
   return fragment;
 }
 
 /**
  * Renders the color input and label pair.
- * @param {string} color
+ * @param {!Color} color
+ * @param {number} index
  * @return {!DocumentFragment}
  */
-function renderColor(color) {
+function renderColor(color, index) {
   const fragment = document.createDocumentFragment();
-  fragment.append(renderColorInput(color), renderColorLabel(color));
+  fragment.append(renderColorInput(color, index), renderColorLabel(color));
   return fragment;
 }
 
 /**
- * @param {string} color
+ * @param {!Color} color
+ * @param {number} index
  * @returns {!HTMLInputElement}
  */
-function renderColorInput(color) {
+function renderColorInput({name}, index) {
   const colorInput = document.createElement('input');
   colorInput.type = 'radio';
   colorInput.name = 'color';
-  colorInput.id = `color-${color}`;
-  colorInput.value = color;
+  colorInput.id = `color-${name}`;
+  colorInput.value = String(index);
   colorInput.autocomplete = 'off';
-  if (color === DEFAULT_COLOR) colorInput.defaultChecked = true;
+  if (index === 0) colorInput.defaultChecked = true;
   return colorInput;
 }
 
 /**
- * @param {string} color
+ * @param {!Color} color
  * @returns {!HTMLLabelElement}
  */
 function renderColorLabel(color) {
   const colorLabel = document.createElement('label');
-  colorLabel.htmlFor = `color-${color}`;
+  colorLabel.htmlFor = `color-${color.name}`;
   colorLabel.append(renderColorBlock(color));
   return colorLabel;
 }
 
 /**
- * @param {string} color
+ * @param {!Color} color
  * @returns {!HTMLDivElement}
  */
-function renderColorBlock(color) {
+function renderColorBlock({name, cssColor}) {
   const colorBlock = document.createElement('div');
-  const title = capitalize(color);
+  const title = capitalize(name);
   colorBlock.title = title;
-  colorBlock.style.backgroundColor = colorToCssVar(color);
+  colorBlock.style.backgroundColor = cssColor;
   return colorBlock;
 }
 
@@ -66,5 +69,5 @@ function renderColorBlock(color) {
  * @param {string} text
  */
 function capitalize(text) {
-  return text[0].toUpperCase() + text.slice(1);
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }

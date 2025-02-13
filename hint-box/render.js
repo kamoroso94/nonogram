@@ -59,7 +59,7 @@ const listFormatter = new Intl.ListFormat('en-US', {
 
 /**
  * Formats the list of hints into a localized string.
- * @param {!number[]} hints
+ * @param {readonly number[]} hints
  * @returns {string}
  */
 function formatHints(hints) {
@@ -84,7 +84,7 @@ function* formatRange(start, end) {
 
 /**
  * Formats a sorted list of numbers into a list of ranges.
- * @param {!number[]} list
+ * @param {readonly number[]} list
  * @yields {string}
  */
 function* formatNumberListParts(list) {

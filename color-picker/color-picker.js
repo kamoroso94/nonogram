@@ -1,25 +1,33 @@
 import {assertInstance, queryElement} from '../utils/asserts.js';
-import {COLORS, colorToCssVar, DEFAULT_COLOR} from './colors.js';
 import {renderColorPicker} from './render.js';
+
+/**
+ * @typedef {object} Color
+ * @property {string} name The display name for the color.
+ * @property {string} cssColor The CSS color value.
+ */
 
 /**
  * @typedef {object} ColorPickerConfig
  * @property {string} slotSelector
  * @property {string} clearColorSelector
  * @property {string} clearAllSelector
+ * @property {readonly Color[]} palette
  */
+
+const DEFAULT_PALETTE_INDEX = 0;
 
 /**
  * @event ColorPicker#event:"color.clear"
- * @type {!CustomEvent<?string>}
- * @property {?string} detail The selected CSS color to clear if provided,
- *     otherwise all colors are to be cleared.
+ * @type {!CustomEvent<?number>}
+ * @property {?number} detail The palette index of the selected CSS color to
+ *     clear if provided, otherwise all colors are to be cleared.
  */
 
 /**
  * @event ColorPicker#event:"color.change"
- * @type {!CustomEvent<string>}
- * @property {string} detail The new CSS color in use.
+ * @type {!CustomEvent<number>}
+ * @property {number} detail The palette index of the new CSS color in use.
  */
 
 /**
@@ -28,30 +36,52 @@ import {renderColorPicker} from './render.js';
  * @fires ColorPicker#"color.change"
  */
 export class ColorPicker extends EventTarget {
-  /** @type {string} */
-  #playColor = colorToCssVar(DEFAULT_COLOR);
+  /** @type {readonly Color[]} */
+  #palette;
+  #paletteIndex = DEFAULT_PALETTE_INDEX;
 
   /** @type {!HTMLButtonElement} */
   #clearColorButton;
 
   /**
-   * @param {!ColorPickerConfig} config
-   * @throws {!TypeError} When any of the selectors fail to match an element.
+   * The palette index of the currently selected CSS color.
+   * @returns {number}
    */
-  constructor({slotSelector, clearColorSelector, clearAllSelector}) {
+  get value() {
+    return this.#paletteIndex;
+  }
+
+  /**
+   * @param {(number | string)} paletteIndex
+   * @throws Whenever `paletteIndex` is invalid.
+   */
+  set value(paletteIndex) {
+    paletteIndex = Number(paletteIndex);
+    this.#validatePaletteIndex(paletteIndex);
+    this.#changeColor(paletteIndex);
+  }
+
+  /**
+   * @param {!ColorPickerConfig} config
+   * @throws {!TypeError} When any of the selectors fail to match an element or
+   *     the palette is empty.
+   */
+  constructor({slotSelector, clearColorSelector, clearAllSelector, palette}) {
+    if (!palette.length) throw new TypeError('Palette must not be empty');
+
     super();
 
+    this.#palette = palette;
+
     const slot = assertInstance(queryElement(slotSelector), HTMLElement);
-    slot.append(renderColorPicker());
+    slot.append(renderColorPicker(this.#palette));
 
     this.#clearColorButton = assertInstance(
       queryElement(clearColorSelector),
       HTMLButtonElement
     );
     this.#clearColorButton.addEventListener('click', () => {
-      this.dispatchEvent(
-        new CustomEvent('color.clear', {detail: this.playColor})
-      );
+      this.dispatchEvent(new CustomEvent('color.clear', {detail: this.value}));
     });
 
     queryElement(clearAllSelector).addEventListener('click', () => {
@@ -65,10 +95,13 @@ export class ColorPicker extends EventTarget {
       );
       if (!slot.contains(colorLabel)) return;
 
-      const color = /** @type {!HTMLLabelElement} */ (
+      const {htmlFor: colorOptionId} = /** @type {!HTMLLabelElement} */ (
         colorLabel
-      ).htmlFor.replace('color-', '');
-      this.#changeColor(color, {fromEvent: true});
+      );
+      const {value: paletteIndex} = /** @type {!HTMLInputElement} */ (
+        document.getElementById(colorOptionId)
+      );
+      this.#changeColor(Number(paletteIndex), {fromEvent: true});
     });
 
     // TODO: more testing, maybe experiment guard?
@@ -92,34 +125,56 @@ export class ColorPicker extends EventTarget {
     });
   }
 
-  /** The current CSS color in play. */
-  get playColor() {
-    return this.#playColor;
+  /**
+   * Validates the given `index` to see if it's a valid palette index.
+   * @param {number} index
+   * @throws {!TypeError} Whenever `index` isn't an integer.
+   * @throws {!RangeError} Whenever `index` isn't in the palette range.
+   */
+  #validatePaletteIndex(index) {
+    if (!Number.isInteger(index)) {
+      throw new TypeError('Value must be an integer');
+    }
+    if (index < 0 || index >= this.#palette.length) {
+      throw new RangeError('Value must be in the palette range');
+    }
+  }
+
+  /**
+   * Gets the CSS color specified by the given `paletteIndex`.
+   * @param {number} paletteIndex
+   * @returns {string}
+   * @throws Whenever `paletteIndex` is invalid.
+   */
+  getColor(paletteIndex) {
+    this.#validatePaletteIndex(paletteIndex);
+    return this.#palette[paletteIndex].cssColor;
   }
 
   /** Resets the color picker back to the default state. */
   reset() {
+    const defaultColor = this.#palette[DEFAULT_PALETTE_INDEX];
     /** @type {!HTMLInputElement} */ (
-      queryElement(`#color-${DEFAULT_COLOR}`)
+      queryElement(`#color-${defaultColor.name}`)
     ).checked = true;
-    this.#changeColor(DEFAULT_COLOR);
+    this.#changeColor(DEFAULT_PALETTE_INDEX);
   }
 
   /**
-   * @param {string} color
+   * @param {number} paletteIndex
    * @param {object} [options={}]
    * @param {boolean} [options.fromEvent]
    * @fires ColorPicker#"color.change" Whenever `options.fromEvent` is
    *     provided.
    */
-  #changeColor(color, {fromEvent} = {}) {
-    this.#playColor = colorToCssVar(color);
+  #changeColor(paletteIndex, {fromEvent} = {}) {
+    this.#paletteIndex = paletteIndex;
+    this.#clearColorButton.textContent = `Clear ${
+      this.#palette[this.value].name
+    }`;
     if (fromEvent) {
-      this.dispatchEvent(
-        new CustomEvent('color.change', {detail: this.playColor})
-      );
+      this.dispatchEvent(new CustomEvent('color.change', {detail: this.value}));
     }
-    this.#clearColorButton.textContent = `Clear ${color}`;
   }
 }
 

@@ -1,7 +1,4 @@
 import {queryElement, assertInstance} from '../utils/asserts.js';
-import {ColorPicker} from '../color-picker/color-picker.js';
-import {HintBox} from '../hint-box/hint-box.js';
-import {HistoryWidget} from '../history-widget/history-widget.js';
 import {getColumns, matrix} from '../utils/matrix.js';
 import {MouseButton} from '../utils/mouse-button.js';
 
@@ -13,9 +10,9 @@ import {
   renderGridClues,
 } from './render.js';
 
-/** @import {ColorPickerConfig} from '../color-picker/color-picker.js' */
-/** @import {HintBoxConfig, HintBoxHints} from '../hint-box/hint-box.js' */
-/** @import {HistoryWidgetConfig} from '../history-widget/history-widget.js' */
+/** @import {ColorPicker} from '../color-picker/color-picker.js' */
+/** @import {HintBox, HintBoxHints} from '../hint-box/hint-box.js' */
+/** @import {HistoryWidget} from '../history-widget/history-widget.js' */
 /** @import {Cell} from './cell.js' */
 
 /**
@@ -25,9 +22,9 @@ import {
  * @property {string} difficultySelector
  * @property {string} restartSelector
  * @property {string} submitSelector
- * @property {!HistoryWidgetConfig} historyWidgetConfig
- * @property {!ColorPickerConfig} colorPickerConfig
- * @property {!HintBoxConfig} hintBoxConfig
+ * @property {!HistoryWidget} historyWidget
+ * @property {!ColorPicker} colorPicker
+ * @property {!HintBox} hintBox
  */
 
 /**
@@ -41,7 +38,7 @@ import {
 
 /**
  * @typedef CellState
- * @property {string} color
+ * @property {number} color
  * @property {!Cell} state
  * @property {number} row
  * @property {number} column
@@ -84,9 +81,9 @@ export class Nonogram {
     difficultySelector,
     restartSelector,
     submitSelector,
-    historyWidgetConfig,
-    colorPickerConfig,
-    hintBoxConfig,
+    historyWidget,
+    colorPicker,
+    hintBox,
   }) {
     this.#nonogram = assertInstance(
       queryElement(slotSelector),
@@ -94,15 +91,15 @@ export class Nonogram {
     );
     this.#wireNonogram();
 
-    this.#historyWidget = new HistoryWidget(historyWidgetConfig);
+    this.#historyWidget = historyWidget;
     this.#wireHistoryWidget();
 
-    this.#colorPicker = new ColorPicker(colorPickerConfig);
+    this.#colorPicker = colorPicker;
     this.#colorPicker.addEventListener('color.clear', (event) => {
-      const color = /** @type {!CustomEvent<?string>} */ (event).detail;
+      const color = /** @type {!CustomEvent<?number>} */ (event).detail;
       this.#clear({color: color ?? undefined});
     });
-    this.#hintBox = new HintBox(hintBoxConfig);
+    this.#hintBox = hintBox;
 
     queryElement(restartSelector).addEventListener('click', () => {
       this.reset();
@@ -265,7 +262,7 @@ export class Nonogram {
    * Clears the `#userPuzzle` and `#nonogram` of a specific `color` if provided,
    * otherwise clears all colors.
    * @param {object} [options={}]
-   * @param {string} [options.color] Clears a specific CSS color when provided.
+   * @param {number} [options.color] Clears a specific CSS color when provided.
    * @param {boolean} [options.force] Whether to forcefully clear locked cells.
    */
   #clear({color, force} = {}) {
@@ -277,7 +274,10 @@ export class Nonogram {
         const cellBox = /** @type {!HTMLElement} */ (
           queryElement(`#${getCellId(row, col)} > .cell`)
         );
-        if (!color || cellBox.style.getPropertyValue('--color') === color) {
+        if (
+          color === undefined ||
+          Number(cellBox.dataset.color ?? '') === color
+        ) {
           if (!force && this.#userPuzzle[row][col] === CellEnum.LOCKED) {
             lockedCells.push([row, col]);
             continue;
@@ -301,7 +301,7 @@ export class Nonogram {
     }
 
     // Only reset when "clear all" actually clears everything.
-    if (!color && (!cellsCleared || !lockedCells.length)) {
+    if (color === undefined && (!cellsCleared || !lockedCells.length)) {
       this.#colorPicker.reset();
     }
     this.#historyWidget.reset();
@@ -317,8 +317,7 @@ export class Nonogram {
     const cellBox = /** @type {!HTMLElement} */ (
       queryElement(`#${getCellId(row, column)} > .cell`)
     );
-    const color =
-      cellBox.style.getPropertyValue('--color') || this.#colorPicker.playColor;
+    const color = Number(cellBox.dataset.color ?? '');
     return {row, column, state, color};
   }
 
@@ -330,7 +329,7 @@ export class Nonogram {
    * @param {object} [options={}]
    * @param {boolean} [options.locking] Whether to toggle locking.
    * @param {Cell} [options.forcedState] A cell state to force.
-   * @param {string} [options.forcedColor] Defaults to play color.
+   * @param {number} [options.forcedColor] Defaults to play color.
    * @returns {boolean} Whether a change was made.
    */
   #toggleCellBox(row, col, {locking, forcedState, forcedColor} = {}) {
@@ -341,12 +340,13 @@ export class Nonogram {
     const finalState = forcedState ?? toggleCell(initialState, locking);
     if (initialState === finalState) return false;
 
-    const color = forcedColor ?? this.#colorPicker.playColor;
-
     this.#userPuzzle[row][col] = finalState;
     // Don't change color when locking unless by force.
     if (forcedColor || coerceCell(initialState) !== coerceCell(finalState)) {
+      const colorIndex = forcedColor ?? this.#colorPicker.value;
+      const color = this.#colorPicker.getColor(colorIndex);
       cellBox.style.setProperty('--color', color);
+      cellBox.dataset.color = String(colorIndex);
     }
     cellBox.classList.toggle(
       'filled',
