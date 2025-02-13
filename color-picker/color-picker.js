@@ -73,7 +73,7 @@ export class ColorPicker extends EventTarget {
 
     this.#palette = palette;
 
-    const slot = queryElement(slotSelector);
+    const slot = assertInstance(queryElement(slotSelector), HTMLElement);
     slot.append(renderColorPicker(this.#palette));
 
     this.#clearColorButton = assertInstance(
@@ -102,6 +102,18 @@ export class ColorPicker extends EventTarget {
         document.getElementById(colorOptionId)
       );
       this.#changeColor(Number(paletteIndex), {fromEvent: true});
+    });
+
+    slot.addEventListener('wheel', (event) => {
+      const {deltaX, deltaY} = event;
+      const direction = Math.sign(deltaX) || Math.sign(deltaY);
+      if (!direction) return;
+
+      event.preventDefault();
+      const nextIndex =
+        (this.#paletteIndex + direction + this.#palette.length) %
+        this.#palette.length;
+      this.#changeColor(nextIndex, {fromEvent: true});
     });
   }
 
@@ -133,10 +145,6 @@ export class ColorPicker extends EventTarget {
 
   /** Resets the color picker back to the default state. */
   reset() {
-    const defaultColor = this.#palette[DEFAULT_PALETTE_INDEX];
-    /** @type {!HTMLInputElement} */ (
-      queryElement(`#color-${defaultColor.name}`)
-    ).checked = true;
     this.#changeColor(DEFAULT_PALETTE_INDEX);
   }
 
@@ -149,11 +157,25 @@ export class ColorPicker extends EventTarget {
    */
   #changeColor(paletteIndex, {fromEvent} = {}) {
     this.#paletteIndex = paletteIndex;
-    this.#clearColorButton.textContent = `Clear ${
-      this.#palette[this.value].name
-    }`;
+    const color = this.#palette[paletteIndex];
+
+    const colorOption = /** @type {!HTMLInputElement} */ (
+      queryElement(`#color-${color.name}`)
+    );
+    colorOption.checked = true;
+    this.#clearColorButton.textContent = `Clear ${color.name}`;
+
     if (fromEvent) {
       this.dispatchEvent(new CustomEvent('color.change', {detail: this.value}));
     }
   }
+}
+
+/**
+ * Parses a string of the form "var(--color-XYZ)" to "XYZ".
+ * @param {string} colorVar
+ * @returns string
+ */
+function parseColorVar(colorVar) {
+  return colorVar.slice(12, -1);
 }
