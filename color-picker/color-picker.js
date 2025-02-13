@@ -104,24 +104,16 @@ export class ColorPicker extends EventTarget {
       this.#changeColor(Number(paletteIndex), {fromEvent: true});
     });
 
-    // TODO: more testing, maybe experiment guard?
     slot.addEventListener('wheel', (event) => {
       const {deltaX, deltaY} = event;
       const direction = Math.sign(deltaX) || Math.sign(deltaY);
       if (!direction) return;
 
-      const index = /** @type {readonly string[]} */ (COLORS).indexOf(
-        parseColorVar(this.playColor)
-      );
-      if (index < 0) return;
-
       event.preventDefault();
-      const nextIndex = (index + direction + COLORS.length) % COLORS.length;
-      const nextColor = COLORS[nextIndex];
-      /** @type {!HTMLInputElement} */ (
-        queryElement(`#color-${nextColor}`)
-      ).checked = true;
-      this.#changeColor(nextColor, {fromEvent: true});
+      const nextIndex =
+        (this.#paletteIndex + direction + this.#palette.length) %
+        this.#palette.length;
+      this.#changeColor(nextIndex, {fromEvent: true});
     });
   }
 
@@ -153,10 +145,6 @@ export class ColorPicker extends EventTarget {
 
   /** Resets the color picker back to the default state. */
   reset() {
-    const defaultColor = this.#palette[DEFAULT_PALETTE_INDEX];
-    /** @type {!HTMLInputElement} */ (
-      queryElement(`#color-${defaultColor.name}`)
-    ).checked = true;
     this.#changeColor(DEFAULT_PALETTE_INDEX);
   }
 
@@ -169,9 +157,14 @@ export class ColorPicker extends EventTarget {
    */
   #changeColor(paletteIndex, {fromEvent} = {}) {
     this.#paletteIndex = paletteIndex;
-    this.#clearColorButton.textContent = `Clear ${
-      this.#palette[this.value].name
-    }`;
+    const color = this.#palette[paletteIndex];
+
+    const colorOption = /** @type {!HTMLInputElement} */ (
+      queryElement(`#color-${color.name}`)
+    );
+    colorOption.checked = true;
+    this.#clearColorButton.textContent = `Clear ${color.name}`;
+
     if (fromEvent) {
       this.dispatchEvent(new CustomEvent('color.change', {detail: this.value}));
     }
