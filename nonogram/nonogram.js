@@ -1,7 +1,7 @@
 import {queryElement, assertInstance} from '../utils/asserts.js';
-import {ColorPicker} from '../color-picker/index.js';
-import {HintBox} from '../hint-box/index.js';
-import {HistoryWidget} from '../history-widget/index.js';
+import {ColorPicker} from '../color-picker/color-picker.js';
+import {HintBox} from '../hint-box/hint-box.js';
+import {HistoryWidget} from '../history-widget/history-widget.js';
 import {getColumns, matrix} from '../utils/matrix.js';
 import {MouseButton} from '../utils/mouse-button.js';
 
@@ -13,9 +13,9 @@ import {
   renderGridClues,
 } from './render.js';
 
-/** @import {ColorPickerConfig} from '../color-picker/index.js' */
-/** @import {HintBoxConfig, HintBoxHints} from '../hint-box/index.js' */
-/** @import {HistoryWidgetConfig} from '../history-widget/index.js' */
+/** @import {ColorPickerConfig} from '../color-picker/color-picker.js' */
+/** @import {HintBoxConfig, HintBoxHints} from '../hint-box/hint-box.js' */
+/** @import {HistoryWidgetConfig} from '../history-widget/history-widget.js' */
 /** @import {Cell} from './cell.js' */
 
 /**
