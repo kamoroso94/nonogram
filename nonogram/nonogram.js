@@ -1,7 +1,4 @@
 import {queryElement, assertInstance} from '../utils/asserts.js';
-import {ColorPicker} from '../color-picker/color-picker.js';
-import {HintBox} from '../hint-box/hint-box.js';
-import {HistoryWidget} from '../history-widget/history-widget.js';
 import {getColumns, matrix} from '../utils/matrix.js';
 import {MouseButton} from '../utils/mouse-button.js';
 
@@ -13,9 +10,9 @@ import {
   renderGridClues,
 } from './render.js';
 
-/** @import {ColorPickerConfig} from '../color-picker/color-picker.js' */
-/** @import {HintBoxConfig, HintBoxHints} from '../hint-box/hint-box.js' */
-/** @import {HistoryWidgetConfig} from '../history-widget/history-widget.js' */
+/** @import {ColorPicker} from '../color-picker/color-picker.js' */
+/** @import {HintBox, HintBoxHints} from '../hint-box/hint-box.js' */
+/** @import {HistoryWidget} from '../history-widget/history-widget.js' */
 /** @import {Cell} from './cell.js' */
 
 /**
@@ -25,9 +22,9 @@ import {
  * @property {string} difficultySelector
  * @property {string} restartSelector
  * @property {string} submitSelector
- * @property {!HistoryWidgetConfig} historyWidgetConfig
- * @property {!ColorPickerConfig} colorPickerConfig
- * @property {!HintBoxConfig} hintBoxConfig
+ * @property {!HistoryWidget} historyWidget
+ * @property {!ColorPicker} colorPicker
+ * @property {!HintBox} hintBox
  */
 
 /**
@@ -84,9 +81,9 @@ export class Nonogram {
     difficultySelector,
     restartSelector,
     submitSelector,
-    historyWidgetConfig,
-    colorPickerConfig,
-    hintBoxConfig,
+    historyWidget,
+    colorPicker,
+    hintBox,
   }) {
     this.#nonogram = assertInstance(
       queryElement(slotSelector),
@@ -94,15 +91,15 @@ export class Nonogram {
     );
     this.#wireNonogram();
 
-    this.#historyWidget = new HistoryWidget(historyWidgetConfig);
+    this.#historyWidget = historyWidget;
     this.#wireHistoryWidget();
 
-    this.#colorPicker = new ColorPicker(colorPickerConfig);
+    this.#colorPicker = colorPicker;
     this.#colorPicker.addEventListener('color.clear', (event) => {
       const color = /** @type {!CustomEvent<?string>} */ (event).detail;
       this.#clear({color: color ?? undefined});
     });
-    this.#hintBox = new HintBox(hintBoxConfig);
+    this.#hintBox = hintBox;
 
     queryElement(restartSelector).addEventListener('click', () => {
       this.reset();
