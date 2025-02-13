@@ -1,4 +1,4 @@
-import {Nonogram} from './nonogram/index.js';
+import {Nonogram} from './nonogram/nonogram.js';
 
 const MAX_HISTORY = 50;
 

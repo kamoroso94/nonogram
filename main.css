@@ -1,0 +1,37 @@
+body {
+  margin: 10px;
+  background-color: light-dark(#ccc, #000);
+  line-height: 1.2;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+section:first-of-type {
+  margin-top: 0;
+}
+
+section {
+  margin: 20px auto 0;
+  padding: 10px;
+  max-width: 1024px;
+  box-shadow: 0 0 10px light-dark(#0007, #ccc7);
+  background-color: light-dark(#fff, #1b1b1b);
+}
+
+.padded {
+  padding: 10px 0;
+}
+
+img.thumb {
+  margin: 5px;
+  padding: 5px;
+  width: 200px;
+  box-shadow: 0 0 5px light-dark(#0007, #ccc7);
+  transition: 0.5s;
+}
+
+img.thumb:hover {
+  box-shadow: 0 0 10px light-dark(#00f7, #77f7);
+}
