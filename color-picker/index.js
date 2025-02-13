@@ -1,5 +1,5 @@
 import {assertInstance, queryElement} from '../utils/asserts.js';
-import {colorToCssVar, DEFAULT_COLOR} from './colors.js';
+import {COLORS, colorToCssVar, DEFAULT_COLOR} from './colors.js';
 import {renderColorPicker} from './render.js';
 
 /**
@@ -41,7 +41,7 @@ export class ColorPicker extends EventTarget {
   constructor({slotSelector, clearColorSelector, clearAllSelector}) {
     super();
 
-    const slot = queryElement(slotSelector);
+    const slot = assertInstance(queryElement(slotSelector), HTMLElement);
     slot.append(renderColorPicker());
 
     this.#clearColorButton = assertInstance(
@@ -69,7 +69,26 @@ export class ColorPicker extends EventTarget {
         colorLabel
       ).htmlFor.replace('color-', '');
       this.#changeColor(color, {fromEvent: true});
-      this.#clearColorButton.textContent = `Clear ${color}`;
+    });
+
+    // TODO: more testing, maybe experiment guard?
+    slot.addEventListener('wheel', (event) => {
+      const {deltaX, deltaY} = event;
+      const direction = Math.sign(deltaX) || Math.sign(deltaY);
+      if (!direction) return;
+
+      const index = /** @type {readonly string[]} */ (COLORS).indexOf(
+        parseColorVar(this.playColor)
+      );
+      if (index < 0) return;
+
+      event.preventDefault();
+      const nextIndex = (index + direction + COLORS.length) % COLORS.length;
+      const nextColor = COLORS[nextIndex];
+      /** @type {!HTMLInputElement} */ (
+        queryElement(`#color-${nextColor}`)
+      ).checked = true;
+      this.#changeColor(nextColor, {fromEvent: true});
     });
   }
 
@@ -83,7 +102,6 @@ export class ColorPicker extends EventTarget {
     /** @type {!HTMLInputElement} */ (
       queryElement(`#color-${DEFAULT_COLOR}`)
     ).checked = true;
-    this.#clearColorButton.textContent = `Clear ${DEFAULT_COLOR}`;
     this.#changeColor(DEFAULT_COLOR);
   }
 
@@ -101,5 +119,15 @@ export class ColorPicker extends EventTarget {
         new CustomEvent('color.change', {detail: this.playColor})
       );
     }
+    this.#clearColorButton.textContent = `Clear ${color}`;
   }
+}
+
+/**
+ * Parses a string of the form "var(--color-XYZ)" to "XYZ".
+ * @param {string} colorVar
+ * @returns string
+ */
+function parseColorVar(colorVar) {
+  return colorVar.slice(12, -1);
 }
