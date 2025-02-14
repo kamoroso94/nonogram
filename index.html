@@ -12,7 +12,7 @@
       content="Nonogram is a fun and challenging puzzle."
     />
     <meta name="keywords" content="nonogram,puzzle,game" />
-    <meta name="version" content="1.4.0" />
+    <meta name="version" content="1.5.0" />
     <meta property="og:title" content="Nonogram" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://kamoroso94.github.io/nonogram/" />
@@ -86,7 +86,7 @@
           <input type="checkbox" id="hints-setting" autocomplete="off" />
           Enable hints:
         </label>
-        <div id="hint-box"></div>
+        <div id="hint-box"><em>Hints disabled.</em></div>
       </div>
 
       <div class="padded">
@@ -124,34 +124,81 @@
         >. Here are some solutions to nonograms of various sizes:
       </p>
 
-      <a href="images/5x5.png" target="_blank"
-        ><img
-          src="images/5x5.png"
-          alt="A solution to a 5x5 nonogram puzzle."
-          title="5x5 Nonogram"
-          class="thumb"
-      /></a>
-      <a href="images/10x10.png" target="_blank"
-        ><img
-          src="images/10x10.png"
-          alt="A solution to a 10x10 nonogram puzzle."
-          title="10x10 Nonogram"
-          class="thumb"
-      /></a>
-      <a href="images/15x15.png" target="_blank"
-        ><img
-          src="images/15x15.png"
-          alt="A solution to a 15x15 nonogram puzzle."
-          title="15x15 Nonogram"
-          class="thumb"
-      /></a>
-      <a href="images/20x20.png" target="_blank"
-        ><img
-          src="images/20x20.png"
-          alt="A solution to a 20x20 nonogram puzzle."
-          title="20x20 Nonogram"
-          class="thumb"
-      /></a>
+      <div id="gallery">
+        <picture>
+          <source
+            srcset="images/nonogram-05-dark.png"
+            width="193"
+            height="204"
+            media="(prefers-color-scheme: dark)"
+          />
+          <img
+            src="images/nonogram-05-light.png"
+            loading="lazy"
+            width="193"
+            height="204"
+            alt="A solution to a 5x5 nonogram puzzle."
+            title="5x5 Nonogram"
+            class="thumb"
+          />
+        </picture>
+
+        <picture>
+          <source
+            srcset="images/nonogram-10-dark.png"
+            width="360"
+            height="400"
+            media="(prefers-color-scheme: dark)"
+          />
+          <img
+            src="images/nonogram-10-light.png"
+            loading="lazy"
+            width="360"
+            height="400"
+            alt="A solution to a 10x10 nonogram puzzle."
+            title="10x10 Nonogram"
+            class="thumb"
+          />
+        </picture>
+
+        <picture>
+          <source
+            srcset="images/nonogram-15-dark.png"
+            width="544"
+            height="596"
+            media="(prefers-color-scheme: dark)"
+          />
+          <img
+            src="images/nonogram-15-light.png"
+            loading="lazy"
+            width="544"
+            height="596"
+            alt="A solution to a 15x15 nonogram puzzle."
+            title="15x15 Nonogram"
+            class="thumb"
+          />
+        </picture>
+
+        <picture>
+          <source
+            srcset="images/nonogram-20-dark.png"
+            width="740"
+            height="774"
+            media="(prefers-color-scheme: dark)"
+          />
+          <img
+            src="images/nonogram-20-light.png"
+            loading="lazy"
+            width="740"
+            height="774"
+            alt="A solution to a 20x20 nonogram puzzle."
+            title="20x20 Nonogram"
+            class="thumb"
+          />
+        </picture>
+      </div>
     </section>
+
+    <footer>Created by Kyle Amoroso in 2017.</footer>
   </body>
 </html>

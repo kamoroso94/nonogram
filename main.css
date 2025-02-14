@@ -12,7 +12,8 @@ section:first-of-type {
   margin-top: 0;
 }
 
-section {
+section,
+footer {
   margin: 20px auto 0;
   padding: 10px;
   max-width: 1024px;
@@ -24,14 +25,19 @@ section {
   padding: 10px 0;
 }
 
-img.thumb {
+#gallery img.thumb {
   margin: 5px;
   padding: 5px;
   width: 200px;
+  height: auto;
   box-shadow: 0 0 5px light-dark(#0007, #ccc7);
   transition: 0.5s;
 }
 
-img.thumb:hover {
+#gallery img.thumb:not(:fullscreen) {
+  cursor: pointer;
+}
+
+#gallery img.thumb:hover {
   box-shadow: 0 0 10px light-dark(#00f7, #77f7);
 }
