@@ -1,4 +1,5 @@
 import {assertInstance, queryElement} from '../utils/asserts.js';
+import {addShortcut} from '../utils/shortcut-service.js';
 import {renderColorPicker} from './render.js';
 
 /**
@@ -119,6 +120,24 @@ export class ColorPicker extends EventTarget {
       },
       {passive: false}
     );
+
+    const numKeys = [...'1234567890'];
+    addShortcut(numKeys, (event) => {
+      const index = numKeys.indexOf(event.key);
+      if (this.#isValidPaletteIndex(index)) {
+        this.#changeColor(index, {fromEvent: true});
+      }
+    });
+  }
+
+  /** @param {number} index */
+  #isValidPaletteIndex(index) {
+    try {
+      this.#validatePaletteIndex(index);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**
