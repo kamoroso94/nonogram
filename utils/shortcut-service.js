@@ -52,7 +52,7 @@ document.addEventListener('keydown', (event) => {
   }
 
   let immediatePropagationStopped = false;
-  event.stopImmediatePropagation = function () {
+  event.stopImmediatePropagation = () => {
     immediatePropagationStopped = true;
     Event.prototype.stopImmediatePropagation.call(event);
     // Remove own property.
