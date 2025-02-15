@@ -104,17 +104,21 @@ export class ColorPicker extends EventTarget {
       this.#changeColor(Number(paletteIndex), {fromEvent: true});
     });
 
-    slot.addEventListener('wheel', (event) => {
-      const {deltaX, deltaY} = event;
-      const direction = Math.sign(deltaX) || Math.sign(deltaY);
-      if (!direction) return;
+    slot.addEventListener(
+      'wheel',
+      (event) => {
+        const {deltaX, deltaY, shiftKey} = event;
+        const direction = Math.sign(deltaX) || Math.sign(deltaY);
+        if (!shiftKey || !direction) return;
 
-      event.preventDefault();
-      const nextIndex =
-        (this.#paletteIndex + direction + this.#palette.length) %
-        this.#palette.length;
-      this.#changeColor(nextIndex, {fromEvent: true});
-    });
+        event.preventDefault();
+        const nextIndex =
+          (this.#paletteIndex + direction + this.#palette.length) %
+          this.#palette.length;
+        this.#changeColor(nextIndex, {fromEvent: true});
+      },
+      {passive: false}
+    );
   }
 
   /**
