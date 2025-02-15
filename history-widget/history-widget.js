@@ -1,6 +1,6 @@
 import {assertInstance, queryElement} from '../utils/asserts.js';
 import {HistoryBuffer} from '../utils/history-buffer.js';
-import {addShortcut, addShortcuts} from '../utils/shortcut-service.js';
+import {addShortcut} from '../utils/shortcut-service.js';
 
 /**
  * @typedef HistoryWidgetConfig
@@ -70,7 +70,7 @@ export class HistoryWidget extends EventTarget {
       event.preventDefault();
       this.#undo({fromEvent: true});
     });
-    addShortcuts(['Ctrl+Shift+Z', 'Ctrl+Y'], (event) => {
+    addShortcut(['Ctrl+Shift+Z', 'Ctrl+Y'], (event) => {
       event.preventDefault();
       this.#redo({fromEvent: true});
     });

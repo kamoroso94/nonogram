@@ -36,7 +36,7 @@ function isShortcutMatch(event, shortcut) {
     controlKey === modifiers.has('control') &&
     event.altKey === modifiers.has('alt') &&
     event.shiftKey === modifiers.has('shift') &&
-    event.code.toLowerCase() === (key.length === 1 ? `key${key}` : key)
+    event.key.toLowerCase() === key
   );
 }
 
@@ -51,6 +51,14 @@ document.addEventListener('keydown', (event) => {
     return;
   }
 
+  let immediatePropagationStopped = false;
+  event.stopImmediatePropagation = function () {
+    immediatePropagationStopped = true;
+    Event.prototype.stopImmediatePropagation.call(event);
+    // Remove own property.
+    delete (/** @type {*} */ (event).stopImmediatePropagation);
+  };
+
   for (const {shortcuts, handler} of shortcutConfigs) {
     if (!shortcuts.some((shortcut) => isShortcutMatch(event, shortcut))) {
       continue;
@@ -58,6 +66,7 @@ document.addEventListener('keydown', (event) => {
 
     try {
       handler.call(document, event);
+      if (immediatePropagationStopped) break;
     } catch (error) {
       console.error(error);
     }
@@ -65,20 +74,12 @@ document.addEventListener('keydown', (event) => {
 });
 
 /**
- * Attaches a handler for the given `shortcut` to the document.
- * @param {string} shortcut
- * @param {!ShortcutHandler} handler
- */
-export function addShortcut(shortcut, handler) {
-  addShortcuts([shortcut], handler);
-}
-
-/**
  * Attaches a handler for the given `shortcuts` to the document.
- * @param {!string[]} shortcuts
+ * @param {(string | string[])} shortcuts
  * @param {!ShortcutHandler} handler
  */
-export function addShortcuts(shortcuts, handler) {
+export function addShortcut(shortcuts, handler) {
+  shortcuts = Array.isArray(shortcuts) ? shortcuts : [shortcuts];
   if (!shortcuts.length) {
     throw new TypeError('Argument shortcuts must not be empty');
   }
