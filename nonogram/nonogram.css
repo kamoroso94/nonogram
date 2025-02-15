@@ -25,6 +25,14 @@
   vertical-align: bottom;
 }
 
+#nonogram-game tr:first-of-type th.loading {
+  font-weight: normal;
+  font-style: italic;
+  width: 200px;
+  height: 200px;
+  vertical-align: middle;
+}
+
 #nonogram-game th {
   padding: 0 2px;
   border: 2px solid light-dark(#000, #fff);
@@ -33,12 +41,6 @@
   vertical-align: middle;
   white-space: nowrap;
   cursor: default;
-}
-
-#nonogram-game th.loading {
-  border: none;
-  font-weight: normal;
-  font-style: italic;
 }
 
 #nonogram-game td {

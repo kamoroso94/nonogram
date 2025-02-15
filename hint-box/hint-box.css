@@ -5,6 +5,7 @@ label {
 #hint-box {
   padding: 5px;
   border: 1px solid light-dark(#666, #777);
+  line-height: 1.5;
 }
 
 #hint-box em {

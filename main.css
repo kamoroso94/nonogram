@@ -1,3 +1,7 @@
+:root {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 10px;
   background-color: light-dark(#ccc, #000);
@@ -21,8 +25,18 @@ footer {
   background-color: light-dark(#fff, #1b1b1b);
 }
 
+p {
+  line-height: 1.5;
+}
+
 .padded {
   padding: 10px 0;
+}
+
+a[href|='#def'] {
+  color: inherit;
+  text-decoration-style: dotted;
+  cursor: help;
 }
 
 #gallery img.thumb {
