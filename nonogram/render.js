@@ -91,6 +91,7 @@ function renderNonogramTopRow(size) {
 
   for (let i = 0; i < size; i++) {
     const th = document.createElement('th');
+    th.scope = 'col';
     th.title = `C${i + 1}`;
     firstRow.append(th);
   }
@@ -161,6 +162,7 @@ function insertNonogramRowHeaders(rows) {
   for (let i = 0; i < rows.childElementCount; i++) {
     const tr = rows.children[i];
     const th = document.createElement('th');
+    th.scope = 'row';
     th.title = `R${i + 1}`;
     tr.prepend(th);
   }
