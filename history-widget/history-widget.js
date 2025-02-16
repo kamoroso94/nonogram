@@ -1,6 +1,6 @@
+import {addShortcut} from '../services/shortcut-service.js';
 import {assertInstance, queryElement} from '../utils/asserts.js';
 import {HistoryBuffer} from '../utils/history-buffer.js';
-import {addShortcut} from '../utils/shortcut-service.js';
 
 /**
  * @typedef HistoryWidgetConfig
