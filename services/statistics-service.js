@@ -1,125 +1,125 @@
 import {
   createStatistics,
-  createStatisticsSummary,
+  createTimelyStatistics,
+  getStatsKey,
 } from '../statistics-widget/statistics.js';
-import {getWeekStart} from '../utils/time.js';
+import {getTimeFrameStart, TIME_FRAMES} from '../utils/time.js';
 
 /**
  * @import {
+ *   Difficulty,
+ *   Dimension,
  *   Statistics,
- *   StatisticsSummary,
+ *   TimelyStatistics,
+ *   StatsKey,
+ *   StatsTable,
  * } from '../statistics-widget/statistics.js'
+ * @import {TimeFrame} from '../utils/time.js'
  */
-
-/** @typedef {('easy' | 'medium' | 'hard')} Difficulty */
-/** @typedef {('all-time' | 'weekly')} TimeFrame */
 
 const NONOGRAM_STATS_KEY = 'nonogram-stats';
 
 /**
- * Resets the weekly scores if outdated.
- * @returns {boolean} Whether the scores were reset.
+ * Resets the timely scores if outdated.
+ * @param {Date} [date]
+ * @returns {boolean} Whether any scores were reset.
  */
-function refreshWeeklyStats() {
-  if (!cachedSummary) return false;
+function refreshTimelyStats(date) {
+  if (!cachedTimelyStats) return false;
 
-  const weekStart = getWeekStart();
-  if (cachedSummary.weekStart >= weekStart) return false;
+  let changed = false;
+  for (const timeFrame of TIME_FRAMES) {
+    const timeFrameStart = getTimeFrameStart(timeFrame, date);
+    if (cachedTimelyStats.timeFrameStarts[timeFrame] >= timeFrameStart) {
+      continue;
+    }
 
-  cachedSummary.weekly.clear();
-  cachedSummary.weekStart = weekStart;
-  return true;
+    cachedTimelyStats.timeFrames[timeFrame] = {};
+    cachedTimelyStats.timeFrameStarts[timeFrame] = timeFrameStart;
+    changed = true;
+  }
+  return changed;
 }
 
-/** @type {(StatisticsSummary | undefined)} */
-let cachedSummary;
+/** @type {(TimelyStatistics | undefined)} */
+let cachedTimelyStats;
 
 /** Clears all nonogram statistics. This action cannot be undone. */
 export function clearAllStatistics() {
-  cachedSummary = undefined;
+  cachedTimelyStats = undefined;
   localStorage.removeItem(NONOGRAM_STATS_KEY);
 }
 
 /**
- * Returns the cached statistics summary, or reads it from local storage when missing.
- * @returns {!StatisticsSummary}
+ * Returns the cached timely statistics, or reads it from local storage when
+ * missing.
+ * @returns {!TimelyStatistics}
  */
-function getSummary() {
-  if (cachedSummary) return cachedSummary;
+function getTimelyStatistics() {
+  if (cachedTimelyStats) return cachedTimelyStats;
 
   const data = localStorage.getItem(NONOGRAM_STATS_KEY);
   const now = new Date();
   if (!data) {
-    cachedSummary = createStatisticsSummary(now);
-    return cachedSummary;
+    cachedTimelyStats = createTimelyStatistics(now);
+    return cachedTimelyStats;
   }
 
   try {
-    cachedSummary = /** @type {!StatisticsSummary} */ (
-      JSON.parse(data, (key, value) => {
-        return key === 'allTime' || key === 'pastWeek' ? new Map(value) : value;
-      })
-    );
-    if (refreshWeeklyStats()) recordSummary();
+    cachedTimelyStats = /** @type {!TimelyStatistics} */ (JSON.parse(data));
+    if (refreshTimelyStats(now)) recordTimelyStats();
   } catch {
-    cachedSummary = createStatisticsSummary(now);
+    cachedTimelyStats = createTimelyStatistics(now);
   }
-  return cachedSummary;
+  return cachedTimelyStats;
 }
 
-function recordSummary() {
-  if (!cachedSummary) return;
+function recordTimelyStats() {
+  if (!cachedTimelyStats) return;
 
-  localStorage.setItem(
-    NONOGRAM_STATS_KEY,
-    JSON.stringify(cachedSummary, (_, value) => {
-      return value instanceof Map ? [...value] : value;
-    })
-  );
+  localStorage.setItem(NONOGRAM_STATS_KEY, JSON.stringify(cachedTimelyStats));
 }
 
 /**
  * Gets the latest statistics for the given categories.
- * @param {!TimeFrame} timeFrame
- * @param {number} gameSize
- * @param {!Difficulty} difficulty
+ * @param {TimeFrame} timeFrame
+ * @param {Difficulty} difficulty
+ * @param {Dimension} dimension
  * @returns {(Statistics | undefined)}
  */
-export function getStatistics(timeFrame, gameSize, difficulty) {
-  const summary = getSummary();
-  const statsMap = timeFrame === 'all-time' ? summary.allTime : summary.weekly;
-  const statsKey = `${difficulty}-${gameSize}`;
-  const entry = statsMap.get(statsKey);
+export function getStatistics(timeFrame, difficulty, dimension) {
+  const timelyStats = getTimelyStatistics();
+  const statsTable = timelyStats.timeFrames[timeFrame];
+  const statsKey = getStatsKey(difficulty, dimension);
+  const entry = statsTable[statsKey];
   return entry ? {...entry} : undefined;
 }
 
 /**
- * Records a new statistics entry.
- * @param {number} gameSize
- * @param {!Difficulty} difficulty
+ * Records a new statistics entry for the completed game.
+ * @param {Difficulty} difficulty
+ * @param {Dimension} dimension
  * @param {number} totalTime
  */
-export function updateStatistics(gameSize, difficulty, totalTime) {
-  const summary = getSummary();
-  const statsKey = `${difficulty}-${gameSize}`;
+export function updateStatistics(difficulty, dimension, totalTime) {
+  const timelyStats = getTimelyStatistics();
+  const statsKey = getStatsKey(difficulty, dimension);
 
-  updateStatsMap(statsKey, summary.allTime, totalTime);
-  updateStatsMap(statsKey, summary.weekly, totalTime);
-  refreshWeeklyStats();
-  recordSummary();
+  refreshTimelyStats();
+  for (const timeFrame of TIME_FRAMES) {
+    updateStatsTable(statsKey, timelyStats.timeFrames[timeFrame], totalTime);
+  }
+  recordTimelyStats();
 }
 
 /**
  * Updates the recorded statistics.
- * @param {string} statsKey
- * @param {!Map<string, !Statistics>} statsMap
+ * @param {StatsKey} statsKey
+ * @param {!StatsTable} statsTable
  * @param {number} totalTime
  */
-function updateStatsMap(statsKey, statsMap, totalTime) {
-  const entry = statsMap.get(statsKey) ?? createStatistics();
-  if (!statsMap.has(statsKey)) {
-    statsMap.set(statsKey, entry);
-  }
+function updateStatsTable(statsKey, statsTable, totalTime) {
+  const entry = (statsTable[statsKey] ??= createStatistics());
   entry.totalSolved++;
   entry.bestTime = Math.min(entry.bestTime, totalTime);
 }
