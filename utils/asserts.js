@@ -35,3 +35,14 @@ export function queryElement(selector) {
   if (!element) throw new TypeError(`Cannot find element ${selector}`);
   return element;
 }
+
+/**
+ * Guards against type-narrowing issues where a type is left unnarrowed.
+ * @param {never} value
+ * @param {string} [message]
+ * @returns {never}
+ * @throws {!TypeError}
+ */
+export function checkExhaustive(value, message) {
+  throw new TypeError(message ?? `Unexpected value: ${value}`);
+}
