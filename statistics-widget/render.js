@@ -50,7 +50,8 @@ function getStatsTable(root, timeFrame) {
   table = document.createElement('table');
   table.id = tableId;
   table.createCaption().append(getTableCaption(timeFrame));
-  renderStatsTableHeaders(table);
+  insertColumnHeaders(table);
+  insertRowHeaders(table);
   root.append(table);
   return table;
 }
@@ -80,26 +81,25 @@ function getTableCaption(timeFrame) {
 }
 
 /**
- * Renders the row and column headers for the given `table`.
+ * Inserts the column headers at the top of the given `table`.
  * @param {!HTMLTableElement} table
  */
-function renderStatsTableHeaders(table) {
-  addHeadersRow(table);
+function insertColumnHeaders(table) {
+  const row = table.insertRow(0);
+  row.insertCell().classList.add('empty');
+  row.append(createTableHeader('Solved', 'col'));
+  row.append(createTableHeader('Best time', 'col'));
+}
+
+/**
+ * Inserts the row headers into the given `table`.
+ * @param {!HTMLTableElement} table
+ */
+function insertRowHeaders(table) {
   for (const dimension of DIMENSIONS) {
     const row = table.insertRow();
     row.append(createTableHeader(`${dimension}×${dimension}`, 'row'));
   }
-}
-
-/**
- * Adds the stat headings to the table.
- * @param {!HTMLTableElement} table
- */
-function addHeadersRow(table) {
-  const row = table.insertRow();
-  row.insertCell().classList.add('empty');
-  row.append(createTableHeader('Solved', 'col'));
-  row.append(createTableHeader('Best time', 'col'));
 }
 
 /**

@@ -31,7 +31,7 @@ export const DIMENSIONS = /** @type {const} */ ([5, 10, 15, 20]);
  */
 
 /**
- * Creates an empty `TimelyStatistics` object.
+ * Creates an empty `TimelyStatistics` object relative to `now`.
  * @param {Date} [now]
  * @returns {!TimelyStatistics}
  */

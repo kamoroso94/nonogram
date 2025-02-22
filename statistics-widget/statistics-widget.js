@@ -38,13 +38,11 @@ export class StatisticsWidget {
     queryElement(deleteSelector).addEventListener('click', () => {
       if (confirm('Are you sure? This action cannot be undone.')) {
         clearAllStatistics();
+        this.#render();
       }
     });
 
     statisticsChanges.addEventListener('statistics.change', () => {
-      this.#render();
-    });
-    statisticsChanges.addEventListener('statistics.clear', () => {
       this.#render();
     });
 
