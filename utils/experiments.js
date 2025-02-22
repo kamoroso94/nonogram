@@ -1,3 +1,6 @@
+/** Guards the statistics tables feature. */
+export const NONOGRAM_STATISTICS = 'NONOGRAM_STATISTICS';
+
 const experiments = new Set(
   new URL(location.href).searchParams.get('e')?.split(',') ?? []
 );

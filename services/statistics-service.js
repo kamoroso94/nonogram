@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Module with methods for manipulating a store of statistics data
+ * related to solving nonogram puzzles.
+ */
+
 import {
   createStatistics,
   createTimelyStatistics,
@@ -17,67 +22,19 @@ import {getTimeFrameStart, TIME_FRAMES} from '../utils/time.js';
  * @import {TimeFrame} from '../utils/time.js'
  */
 
-const NONOGRAM_STATS_KEY = 'nonogram-stats';
-
-/**
- * Resets the timely scores if outdated.
- * @param {Date} [date]
- * @returns {boolean} Whether any scores were reset.
- */
-function refreshTimelyStats(date) {
-  if (!cachedTimelyStats) return false;
-
-  let changed = false;
-  for (const timeFrame of TIME_FRAMES) {
-    const timeFrameStart = getTimeFrameStart(timeFrame, date);
-    if (cachedTimelyStats.timeFrameStarts[timeFrame] >= timeFrameStart) {
-      continue;
-    }
-
-    cachedTimelyStats.timeFrames[timeFrame] = {};
-    cachedTimelyStats.timeFrameStarts[timeFrame] = timeFrameStart;
-    changed = true;
-  }
-  return changed;
-}
+const NONOGRAM_STATS_KEY = 'nonogram.statistics';
 
 /** @type {(TimelyStatistics | undefined)} */
 let cachedTimelyStats;
+
+/** Emits "statistics.change" and "statistics.clear" events. */
+export const statisticsChanges = new EventTarget();
 
 /** Clears all nonogram statistics. This action cannot be undone. */
 export function clearAllStatistics() {
   cachedTimelyStats = undefined;
   localStorage.removeItem(NONOGRAM_STATS_KEY);
-}
-
-/**
- * Returns the cached timely statistics, or reads it from local storage when
- * missing.
- * @returns {!TimelyStatistics}
- */
-function getTimelyStatistics() {
-  if (cachedTimelyStats) return cachedTimelyStats;
-
-  const data = localStorage.getItem(NONOGRAM_STATS_KEY);
-  const now = new Date();
-  if (!data) {
-    cachedTimelyStats = createTimelyStatistics(now);
-    return cachedTimelyStats;
-  }
-
-  try {
-    cachedTimelyStats = /** @type {!TimelyStatistics} */ (JSON.parse(data));
-    if (refreshTimelyStats(now)) recordTimelyStats();
-  } catch {
-    cachedTimelyStats = createTimelyStatistics(now);
-  }
-  return cachedTimelyStats;
-}
-
-function recordTimelyStats() {
-  if (!cachedTimelyStats) return;
-
-  localStorage.setItem(NONOGRAM_STATS_KEY, JSON.stringify(cachedTimelyStats));
+  statisticsChanges.dispatchEvent(new Event('statistics.clear'));
 }
 
 /**
@@ -110,6 +67,58 @@ export function updateStatistics(difficulty, dimension, totalTime) {
     updateStatsTable(statsKey, timelyStats.timeFrames[timeFrame], totalTime);
   }
   recordTimelyStats();
+  statisticsChanges.dispatchEvent(new Event('statistics.change'));
+}
+
+/**
+ * Returns the cached timely statistics, or reads it from storage when missing.
+ * @returns {!TimelyStatistics}
+ */
+function getTimelyStatistics() {
+  if (cachedTimelyStats) return cachedTimelyStats;
+
+  const data = localStorage.getItem(NONOGRAM_STATS_KEY);
+  const now = new Date();
+  if (!data) {
+    cachedTimelyStats = createTimelyStatistics(now);
+    return cachedTimelyStats;
+  }
+
+  try {
+    cachedTimelyStats = /** @type {!TimelyStatistics} */ (JSON.parse(data));
+    if (refreshTimelyStats(now)) recordTimelyStats();
+  } catch {
+    cachedTimelyStats = createTimelyStatistics(now);
+  }
+  return cachedTimelyStats;
+}
+
+/**
+ * Resets the timely scores if outdated.
+ * @param {Date} [date]
+ * @returns {boolean} Whether any scores were reset.
+ */
+function refreshTimelyStats(date) {
+  if (!cachedTimelyStats) return false;
+
+  let changed = false;
+  for (const timeFrame of TIME_FRAMES) {
+    const timeFrameStart = getTimeFrameStart(timeFrame, date);
+    if (cachedTimelyStats.timeFrameStarts[timeFrame] >= timeFrameStart) {
+      continue;
+    }
+
+    cachedTimelyStats.timeFrames[timeFrame] = {};
+    cachedTimelyStats.timeFrameStarts[timeFrame] = timeFrameStart;
+    changed = true;
+  }
+  return changed;
+}
+
+function recordTimelyStats() {
+  if (!cachedTimelyStats) return;
+
+  localStorage.setItem(NONOGRAM_STATS_KEY, JSON.stringify(cachedTimelyStats));
 }
 
 /**

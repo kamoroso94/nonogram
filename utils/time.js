@@ -1,4 +1,4 @@
-import {checkExhaustive} from './asserts';
+import {assertUnreachable} from './asserts.js';
 
 /** All time frames for which nonogram game statistics are recorded. */
 export const TIME_FRAMES = /** @type {const} */ (['all-time', 'weekly']);
@@ -18,7 +18,7 @@ export function getTimeFrameStart(timeFrame, date) {
     case 'weekly':
       return getWeekStart(date);
     default:
-      checkExhaustive(timeFrame, `Unknown time frame "${timeFrame}"`);
+      assertUnreachable(timeFrame, `Unknown time frame "${timeFrame}"`);
   }
 }
 

@@ -1,7 +1,12 @@
-import {queryElement, assertInstance} from '../utils/asserts.js';
+import {updateStatistics} from '../services/statistics-service.js';
+import {DIFFICULTIES, DIMENSIONS} from '../statistics-widget/statistics.js';
+import {
+  queryElement,
+  assertInstance,
+  assertUnreachable,
+} from '../utils/asserts.js';
 import {getColumns, matrix} from '../utils/matrix.js';
 import {MouseButton} from '../utils/mouse-button.js';
-
 import {CellEnum, coerceCell, toggleCell} from './cell.js';
 import {
   fromCellId,
@@ -10,10 +15,13 @@ import {
   renderGridClues,
 } from './render.js';
 
-/** @import {ColorPicker} from '../color-picker/color-picker.js' */
-/** @import {HintBox, HintBoxHints} from '../hint-box/hint-box.js' */
-/** @import {HistoryWidget} from '../history-widget/history-widget.js' */
-/** @import {Cell} from './cell.js' */
+/**
+ * @import {ColorPicker} from '../color-picker/color-picker.js'
+ * @import {HintBox, HintBoxHints} from '../hint-box/hint-box.js'
+ * @import {HistoryWidget} from '../history-widget/history-widget.js'
+ * @import {Difficulty, Dimension} from '../statistics-widget/statistics.js'
+ * @import {Cell} from './cell.js'
+ */
 
 /**
  * @typedef {object} NonogramConfig
@@ -50,6 +58,9 @@ import {
  * @property {!CellState} after
  */
 
+const NONOGRAM_DIFFICULTY_KEY = 'nonogram.difficulty';
+const NONOGRAM_DIMENSIONS_KEY = 'nonogram.dimensions';
+
 /** Component that manages the nonogram puzzle. */
 export class Nonogram {
   /** @type {!HTMLTableElement} */
@@ -61,15 +72,18 @@ export class Nonogram {
   /** @type {!HistoryWidget<!NonogramAction>} */
   #historyWidget;
 
-  /** @type {number} */
+  /** @type {Dimension} */
   #dimensions;
-  /** @type {number} */
+  /** @type {Difficulty} */
   #difficulty;
 
   /** @type {!Cell[][]} */
   #userPuzzle;
   /** @type {!NonogramClues} */
   #keyGridClues;
+
+  /** @type {(number | undefined)} */
+  #gameStart;
 
   /**
    * @param {!NonogramConfig} config
@@ -104,8 +118,8 @@ export class Nonogram {
     queryElement(restartSelector).addEventListener('click', () => {
       this.reset();
     });
-    queryElement(submitSelector).addEventListener('click', () => {
-      this.#validate();
+    queryElement(submitSelector).addEventListener('click', ({timeStamp}) => {
+      this.#validate(timeStamp);
     });
 
     const dimensionsSelect = assertInstance(
@@ -168,7 +182,11 @@ export class Nonogram {
       /** @type {!HTMLElement} */ (cellBox.parentElement).id
     );
     const before = this.#getCellState(row, column);
-    if (!this.#toggleCellBox(row, column, {locking})) return;
+    if (
+      !this.#toggleCellBox(row, column, {locking, updateTime: event.timeStamp})
+    ) {
+      return;
+    }
 
     // Change is committed.
     const after = this.#getCellState(row, column);
@@ -188,32 +206,42 @@ export class Nonogram {
 
   /** @param {!HTMLSelectElement} dimensionsSelect */
   #wireDimensionsSelect(dimensionsSelect) {
-    const initialDimensions = localStorage.getItem('nonogram.dimensions') ?? '';
-    if (isValidOption(dimensionsSelect, initialDimensions)) {
+    const initialDimensions = localStorage.getItem(NONOGRAM_DIMENSIONS_KEY);
+    if (
+      initialDimensions &&
+      DIMENSIONS.includes(/** @type {Dimension} */ (Number(initialDimensions)))
+    ) {
       dimensionsSelect.value = initialDimensions;
     }
 
     dimensionsSelect.addEventListener('change', () => {
-      localStorage.setItem('nonogram.dimensions', dimensionsSelect.value);
-      this.#dimensions = parseInt(dimensionsSelect.value);
+      localStorage.setItem(NONOGRAM_DIMENSIONS_KEY, dimensionsSelect.value);
+      this.#dimensions = /** @type {Dimension} */ (
+        Number(dimensionsSelect.value)
+      );
       this.reset();
     });
-    this.#dimensions = parseInt(dimensionsSelect.value);
+    this.#dimensions = /** @type {Dimension} */ (
+      Number(dimensionsSelect.value)
+    );
   }
 
   /** @param {!HTMLSelectElement} difficultySelect */
   #wireDifficultySelect(difficultySelect) {
-    const initialDifficulty = localStorage.getItem('nonogram.difficulty') ?? '';
-    if (isValidOption(difficultySelect, initialDifficulty)) {
+    const initialDifficulty = localStorage.getItem(NONOGRAM_DIFFICULTY_KEY);
+    if (
+      initialDifficulty &&
+      DIFFICULTIES.includes(/** @type {Difficulty} */ (initialDifficulty))
+    ) {
       difficultySelect.value = initialDifficulty;
     }
 
     difficultySelect.addEventListener('change', () => {
-      localStorage.setItem('nonogram.difficulty', difficultySelect.value);
-      this.#difficulty = parseFloat(difficultySelect.value);
+      localStorage.setItem(NONOGRAM_DIFFICULTY_KEY, difficultySelect.value);
+      this.#difficulty = /** @type {Difficulty} */ (difficultySelect.value);
       this.reset();
     });
-    this.#difficulty = parseFloat(difficultySelect.value);
+    this.#difficulty = /** @type {Difficulty} */ (difficultySelect.value);
   }
 
   /** @param {!NonogramAction} action */
@@ -233,6 +261,7 @@ export class Nonogram {
     this.#colorPicker.reset();
     this.#hintBox.reset();
     this.#historyWidget.reset();
+    this.#gameStart = undefined;
 
     // Make empty user puzzle and random key puzzle.
     this.#userPuzzle = matrix(
@@ -241,7 +270,7 @@ export class Nonogram {
       () => CellEnum.EMPTY
     );
     const keyPuzzle = matrix(this.#dimensions, this.#dimensions, () => {
-      return Math.random() < this.#difficulty
+      return Math.random() < getCellDensity(this.#difficulty)
         ? CellEnum.FILLED
         : CellEnum.CROSSED;
     });
@@ -330,9 +359,15 @@ export class Nonogram {
    * @param {boolean} [options.locking] Whether to toggle locking.
    * @param {Cell} [options.forcedState] A cell state to force.
    * @param {number} [options.forcedColor] Defaults to play color.
+   * @param {DOMHighResTimeStamp} [options.updateTime] The timestamp of the user
+   *     update.
    * @returns {boolean} Whether a change was made.
    */
-  #toggleCellBox(row, col, {locking, forcedState, forcedColor} = {}) {
+  #toggleCellBox(
+    row,
+    col,
+    {locking, forcedState, forcedColor, updateTime = performance.now()} = {}
+  ) {
     const cellBox = /** @type {!HTMLElement} */ (
       queryElement(`#${getCellId(row, col)} > .cell`)
     );
@@ -341,6 +376,8 @@ export class Nonogram {
     if (initialState === finalState) return false;
 
     this.#userPuzzle[row][col] = finalState;
+    this.#gameStart ??= updateTime;
+
     // Don't change color when locking unless by force.
     if (forcedColor || coerceCell(initialState) !== coerceCell(finalState)) {
       const colorIndex = forcedColor ?? this.#colorPicker.value;
@@ -370,9 +407,12 @@ export class Nonogram {
   }
 
   // TODO: avoid use of blocking dialogs
-  #validate() {
+  /** @param {DOMHighResTimeStamp} submitTime */
+  #validate(submitTime) {
     const userGridClues = gridToClues(this.#userPuzzle);
     if (compareCluesEqual(userGridClues, this.#keyGridClues)) {
+      const totalTime = submitTime - (this.#gameStart ?? submitTime);
+      updateStatistics(this.#difficulty, this.#dimensions, totalTime);
       if (confirm('You won! Click OK to play a new game.')) {
         this.reset();
       }
@@ -394,14 +434,20 @@ function cancelGridEvents(event) {
 }
 
 /**
- * @param {!HTMLSelectElement} selectControl
- * @param {string} optionValue
- * @returns {boolean}
+ * @param {Difficulty} difficulty
+ * @returns {number}
  */
-function isValidOption(selectControl, optionValue) {
-  return Iterator.from(selectControl.options).some(
-    (option) => option.value === optionValue
-  );
+function getCellDensity(difficulty) {
+  switch (difficulty) {
+    case 'easy':
+      return 0.6;
+    case 'medium':
+      return 0.5;
+    case 'hard':
+      return 0.4;
+    default:
+      assertUnreachable(difficulty, `Unknown difficulty "${difficulty}"`);
+  }
 }
 
 /**

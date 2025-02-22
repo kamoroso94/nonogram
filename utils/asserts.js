@@ -37,12 +37,12 @@ export function queryElement(selector) {
 }
 
 /**
- * Guards against type-narrowing issues where a type is left unnarrowed.
+ * Asserts that this code is unreachable, given a properly type-narrowed `value`.
  * @param {never} value
  * @param {string} [message]
  * @returns {never}
  * @throws {!TypeError}
  */
-export function checkExhaustive(value, message) {
+export function assertUnreachable(value, message) {
   throw new TypeError(message ?? `Unexpected value: ${value}`);
 }

@@ -1,43 +1,66 @@
 import {getStatistics} from '../services/statistics-service.js';
-import {checkExhaustive, queryElement} from '../utils/asserts.js';
+import {assertUnreachable} from '../utils/asserts.js';
 import {formatDuration, TIME_FRAMES} from '../utils/time.js';
 import {DIMENSIONS} from './statistics.js';
 
 /**
  * @import {TimeFrame} from '../utils/time.js'
- * @import {Difficulty, Dimension, Statistics} from './statistics.js'
+ * @import {Difficulty, Statistics} from './statistics.js'
  */
 
 /**
  * Renders the timely statistics tables for the given `difficulty`.
- * @param {string} slotSelector
+ * @param {!Element} root
  * @param {Difficulty} difficulty
  */
-export function renderStatistics(slotSelector, difficulty) {
-  const slot = queryElement(slotSelector);
-  const fragment = document.createDocumentFragment();
+export function renderStatistics(root, difficulty) {
+  root.querySelector('.loading')?.remove();
   for (const timeFrame of TIME_FRAMES) {
-    fragment.append(renderStatisticsTable(timeFrame, difficulty));
+    renderStatisticsTable(root, timeFrame, difficulty);
   }
-  // TODO: use `replaceChildren`, consider reusing DOM.
-  slot.replaceWith(fragment);
 }
 
 /**
  * Renders a statistics table for the given `timeFrame` and `difficulty`.
+ * @param {!Element} root
  * @param {TimeFrame} timeFrame
  * @param {Difficulty} difficulty
+ */
+function renderStatisticsTable(root, timeFrame, difficulty) {
+  const table = getStatsTable(root, timeFrame);
+  for (const [index, dimension] of DIMENSIONS.entries()) {
+    const entry = getStatistics(timeFrame, difficulty, dimension);
+    updateStatsRow(table, index + 1, entry);
+  }
+}
+
+/**
+ * Gets or creates the statistics table for the given `timeFrame`.
+ * @param {!Element} root
+ * @param {TimeFrame} timeFrame
  * @returns {!HTMLTableElement}
  */
-function renderStatisticsTable(timeFrame, difficulty) {
-  const table = document.createElement('table');
+function getStatsTable(root, timeFrame) {
+  const tableId = getStatsTableId(timeFrame);
+  let table = /** @type {?HTMLTableElement} */ (
+    root.querySelector(`#${tableId}`)
+  );
+  if (table) return table;
+
+  table = document.createElement('table');
+  table.id = tableId;
   table.createCaption().append(getTableCaption(timeFrame));
-  addFirstRow(table);
-  for (const dimension of DIMENSIONS) {
-    const entry = getStatistics(timeFrame, difficulty, dimension);
-    addStatsRow(table, dimension, entry);
-  }
+  renderStatsTableHeaders(table);
+  root.append(table);
   return table;
+}
+
+/**
+ * @param {TimeFrame} timeFrame
+ * @returns {string}
+ */
+function getStatsTableId(timeFrame) {
+  return `stats-table-${timeFrame}`;
 }
 
 /**
@@ -52,7 +75,19 @@ function getTableCaption(timeFrame) {
     case 'weekly':
       return 'Weekly';
     default:
-      checkExhaustive(timeFrame, `Unknown time frame "${timeFrame}"`);
+      assertUnreachable(timeFrame, `Unknown time frame "${timeFrame}"`);
+  }
+}
+
+/**
+ * Renders the row and column headers for the given `table`.
+ * @param {!HTMLTableElement} table
+ */
+function renderStatsTableHeaders(table) {
+  addHeadersRow(table);
+  for (const dimension of DIMENSIONS) {
+    const row = table.insertRow();
+    row.append(createTableHeader(`${dimension}×${dimension}`, 'row'));
   }
 }
 
@@ -60,34 +95,11 @@ function getTableCaption(timeFrame) {
  * Adds the stat headings to the table.
  * @param {!HTMLTableElement} table
  */
-function addFirstRow(table) {
+function addHeadersRow(table) {
   const row = table.insertRow();
-  row.insertCell(); // empty corner cell
+  row.insertCell().classList.add('empty');
   row.append(createTableHeader('Solved', 'col'));
   row.append(createTableHeader('Best time', 'col'));
-}
-
-/** Maximum displayed time. */
-const MAX_TIME = 100 * 60 * 60 * 1000 - 1; // 99:59:59.999
-
-/**
- * Adds the statistics `entry` for the given `dimension` to the `table`.
- * @param {!HTMLTableElement} table
- * @param {Dimension} dimension
- * @param {(Statistics | undefined)} entry
- */
-function addStatsRow(table, dimension, entry) {
-  const row = table.insertRow();
-  row.append(createTableHeader(`${dimension}×${dimension}`, 'row'));
-
-  if (!entry) {
-    row.insertCell().append('—');
-    row.insertCell().append('—');
-    return;
-  }
-
-  row.insertCell().append(entry.totalSolved.toLocaleString());
-  row.insertCell().append(formatDuration(Math.min(entry.bestTime, MAX_TIME)));
 }
 
 /**
@@ -100,4 +112,48 @@ function createTableHeader(label, scope) {
   if (scope) tableHeader.scope = scope;
   tableHeader.append(label);
   return tableHeader;
+}
+
+/** Maximum displayed time. */
+const MAX_TIME = 100 * 60 * 60 * 1000 - 1; // 99:59:59.999
+
+/**
+ * Adds the statistics `entry` for the given `dimension` to the `table`.
+ * @param {!HTMLTableElement} table
+ * @param {number} rowIndex
+ * @param {(Statistics | undefined)} entry
+ */
+function updateStatsRow(table, rowIndex, entry) {
+  const row = table.rows[rowIndex];
+  let cellIndex = 1;
+
+  if (!entry) {
+    setCellData(row, cellIndex++, null);
+    setCellData(row, cellIndex++, null);
+    return;
+  }
+
+  setCellData(row, cellIndex++, entry.totalSolved.toLocaleString('en-US'));
+  setCellData(
+    row,
+    cellIndex++,
+    formatDuration(Math.min(entry.bestTime, MAX_TIME))
+  );
+}
+
+/**
+ * @param {!HTMLTableRowElement} row
+ * @param {number} cellIndex
+ * @param {?string} data
+ * @throws {!RangeError} When the `cellIndex` is beyond the row end.
+ */
+function setCellData(row, cellIndex, data) {
+  if (cellIndex > row.cells.length) {
+    throw new RangeError('Cannot insert cell beyond row end');
+  }
+
+  if (cellIndex === row.cells.length) row.insertCell();
+  const cell = row.cells[cellIndex];
+  cell.classList.toggle('null', !data);
+  cell.textContent = data || '—';
 }

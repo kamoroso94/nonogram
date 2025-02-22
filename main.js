@@ -2,7 +2,9 @@ import {ColorPicker} from './color-picker/color-picker.js';
 import {HintBox} from './hint-box/hint-box.js';
 import {HistoryWidget} from './history-widget/history-widget.js';
 import {Nonogram} from './nonogram/nonogram.js';
+import {StatisticsWidget} from './statistics-widget/statistics-widget.js';
 import {assertExists} from './utils/asserts.js';
+import {isEnabled, NONOGRAM_STATISTICS} from './utils/experiments.js';
 
 /** @import {Color} from './color-picker/color-picker.js'; */
 
@@ -51,6 +53,15 @@ function initializeNonogram() {
     colorPicker,
     hintBox,
   });
+
+  if (isEnabled(NONOGRAM_STATISTICS)) {
+    assertExists(document.getElementById('statistics')).hidden = false;
+    void new StatisticsWidget({
+      rootSelector: '#stats-tables',
+      difficultySelector: '#stats-difficulty',
+      deleteSelector: '#stats-clear',
+    });
+  }
 }
 
 function initializeGallery() {
