@@ -35,3 +35,14 @@ export function queryElement(selector) {
   if (!element) throw new TypeError(`Cannot find element ${selector}`);
   return element;
 }
+
+/**
+ * Asserts that this code is unreachable, given a properly type-narrowed `value`.
+ * @param {never} value
+ * @param {string} [message]
+ * @returns {never}
+ * @throws {!TypeError}
+ */
+export function assertUnreachable(value, message) {
+  throw new TypeError(message ?? `Unexpected value: ${value}`);
+}

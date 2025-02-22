@@ -1,5 +1,5 @@
+import {addShortcut} from '../services/shortcut-service.js';
 import {assertInstance, queryElement} from '../utils/asserts.js';
-import {addShortcut} from '../utils/shortcut-service.js';
 import {renderColorPicker} from './render.js';
 
 /**

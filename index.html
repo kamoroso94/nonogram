@@ -39,6 +39,7 @@
     <link rel="stylesheet" href="nonogram/nonogram.css" />
     <link rel="stylesheet" href="color-picker/color-picker.css" />
     <link rel="stylesheet" href="hint-box/hint-box.css" />
+    <link rel="stylesheet" href="statistics-widget/statistics-widget.css" />
     <link rel="stylesheet" href="main.css" />
     <script type="module" src="main.js"></script>
   </head>
@@ -70,9 +71,9 @@
       <div class="padded">
         Difficulty:
         <select id="difficulty-select" autocomplete="off">
-          <option value="0.6">Easy</option>
-          <option value="0.5" selected>Medium</option>
-          <option value="0.4">Hard</option>
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
         </select>
       </div>
 
@@ -94,6 +95,30 @@
         <button type="button" id="clear-all">Clear all</button>
         <button type="button" id="play-game">New game</button>
         <button type="button" id="submit-answer">Submit answer</button>
+      </div>
+    </section>
+
+    <section id="statistics" hidden>
+      <h2>Statistics</h2>
+
+      <div class="padded">
+        <label>
+          Difficulty:
+          <!-- TODO: refactor into tab list -->
+          <select id="stats-difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="stats-tables" class="padded">
+        <p class="loading"><em>Loading statistics…</em></p>
+      </div>
+
+      <div class="padded">
+        <button type="button" id="stats-clear">Delete stats</button>
       </div>
     </section>
 
