@@ -1,6 +1,10 @@
 import {getStatistics} from '../services/statistics-service.js';
 import {assertUnreachable} from '../utils/asserts.js';
-import {formatDuration, TIME_FRAMES} from '../utils/time.js';
+import {
+  durationToIsoString,
+  formatDuration,
+  TIME_FRAMES,
+} from '../utils/time.js';
 import {DIMENSIONS} from './statistics.js';
 
 /**
@@ -114,9 +118,6 @@ function createTableHeader(label, scope) {
   return tableHeader;
 }
 
-/** Maximum displayed time. */
-const MAX_TIME = 100 * 60 * 60 * 1000 - 1; // 99:59:59.999
-
 /**
  * Adds the statistics `entry` for the given `dimension` to the `table`.
  * @param {!HTMLTableElement} table
@@ -134,17 +135,30 @@ function updateStatsRow(table, rowIndex, entry) {
   }
 
   setCellData(row, cellIndex++, entry.totalSolved.toLocaleString('en-US'));
-  setCellData(
-    row,
-    cellIndex++,
-    formatDuration(Math.min(entry.bestTime, MAX_TIME))
-  );
+  setCellData(row, cellIndex++, createBestTime(entry.bestTime));
+}
+
+/** Maximum displayed time. */
+const MAX_TIME = 100 * 60 * 60 * 1000 - 1; // 99:59:59.999
+
+/**
+ * Creates a `<time>` element containing the best time for solving a nonogram,
+ * capped to less than 100 hours.
+ * @param {number} bestTime
+ * @returns {!HTMLTimeElement}
+ */
+function createBestTime(bestTime) {
+  bestTime = Math.min(bestTime, MAX_TIME);
+  const time = document.createElement('time');
+  time.dateTime = durationToIsoString(bestTime);
+  time.textContent = formatDuration(bestTime);
+  return time;
 }
 
 /**
  * @param {!HTMLTableRowElement} row
  * @param {number} cellIndex
- * @param {?string} data
+ * @param {?(Node | string)} data
  * @throws {!RangeError} When the `cellIndex` is beyond the row end.
  */
 function setCellData(row, cellIndex, data) {
@@ -155,5 +169,5 @@ function setCellData(row, cellIndex, data) {
   if (cellIndex === row.cells.length) row.insertCell();
   const cell = row.cells[cellIndex];
   cell.classList.toggle('null', !data);
-  cell.textContent = data || '—';
+  cell.replaceChildren(data || '—');
 }

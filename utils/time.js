@@ -45,19 +45,71 @@ function roundNearestTenth(value) {
 }
 
 /**
- * Formats a `duration` in the "H:mm:ss.SSS" format. Hours are not padded.
- * @param {number} duration The duration in milliseconds.
+ * Represents a duration down to the millisecond, with the coarsest unit being
+ * days.
+ * @typedef {object} Duration
+ * @property {number} days
+ * @property {number} hours
+ * @property {number} minutes
+ * @property {number} seconds
+ * @property {number} milliseconds
+ */
+
+/**
+ * Partitions a duration in milliseconds into a `Duration` object.
+ * @param {number} durationMillis
+ * @returns {!Duration}
+ */
+function partitionDuration(durationMillis) {
+  let time = Math.floor(roundNearestTenth(durationMillis));
+  const milliseconds = time % 1000;
+  time = Math.floor(time / 1000);
+  const seconds = time % 60;
+  time = Math.floor(time / 60);
+  const minutes = time % 60;
+  time = Math.floor(time / 60);
+  const hours = time % 24;
+  time = Math.floor(time / 24);
+  const days = time;
+
+  return {
+    days,
+    hours,
+    minutes,
+    seconds,
+    milliseconds,
+  };
+}
+
+/**
+ * Returns a duration in the ISO 8601 "PnDTnHnMnS" format.
+ * @param {number} durationMillis
  * @returns {string}
  */
-export function formatDuration(duration) {
-  duration = Math.floor(roundNearestTenth(duration));
-  const milliseconds = String(duration % 1000).padStart(3, '0');
-  duration = Math.floor(duration / 1000);
-  const seconds = String(duration % 60).padStart(2, '0');
-  duration = Math.floor(duration / 60);
-  const minutes = String(duration % 60).padStart(2, '0');
-  duration = Math.floor(duration / 60);
-  const hours = String(duration);
+export function durationToIsoString(durationMillis) {
+  if (!durationMillis) return 'PT0S';
 
-  return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+  const {days, hours, minutes, seconds, milliseconds} =
+    partitionDuration(durationMillis);
+  const d = days ? days + 'D' : '';
+  const h = hours ? hours + 'H' : '';
+  const m = minutes ? minutes + 'M' : '';
+  const fractionalSeconds = seconds + milliseconds / 1000;
+  const s = fractionalSeconds ? fractionalSeconds + 'S' : '';
+  return `P${d}${h}${m}${s}`;
+}
+
+/**
+ * Formats a duration in the "H:mm:ss.SSS" format. Hours are not padded.
+ * @param {number} durationMillis
+ * @returns {string}
+ */
+export function formatDuration(durationMillis) {
+  const {days, hours, minutes, seconds, milliseconds} =
+    partitionDuration(durationMillis);
+  const h = days * 24 + hours;
+  const m = String(minutes).padStart(2, '0');
+  const s = String(seconds).padStart(2, '0');
+  const ms = String(milliseconds).padStart(3, '0');
+  return `${h}:${m}:${s}.${ms}`;
 }
