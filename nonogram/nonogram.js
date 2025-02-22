@@ -1,9 +1,9 @@
 import {updateStatistics} from '../services/statistics-service.js';
 import {DIFFICULTIES, DIMENSIONS} from '../statistics-widget/statistics.js';
 import {
-  queryElement,
   assertInstance,
   assertUnreachable,
+  queryElement,
 } from '../utils/asserts.js';
 import {getColumns, matrix} from '../utils/matrix.js';
 import {MouseButton} from '../utils/mouse-button.js';
@@ -11,8 +11,8 @@ import {CellEnum, coerceCell, toggleCell} from './cell.js';
 import {
   fromCellId,
   getCellId,
-  renderNonogram,
   renderGridClues,
+  renderNonogram,
 } from './render.js';
 
 /**
