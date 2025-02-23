@@ -4,7 +4,7 @@
  * @param {number} rows Total number of rows.
  * @param {number} cols Total number of columns.
  * @param {(row: number, col: number) => T} initializer Initializes the matrix.
- * @returns {!T[][]}
+ * @returns {T[][]}
  */
 export function matrix(rows, cols, initializer) {
   return Array.from({length: rows}, (_, row) =>
@@ -15,8 +15,8 @@ export function matrix(rows, cols, initializer) {
 /**
  * Iterates over the list of columns in a `matrix`.
  * @template T
- * @param {!T[][]} matrix
- * @yields {!T[]}
+ * @param {T[][]} matrix
+ * @yields {T[]}
  */
 export function* getColumns(matrix) {
   const columnCount = matrix[0].length ?? 0;

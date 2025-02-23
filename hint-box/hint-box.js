@@ -48,18 +48,23 @@ export class HintBox {
     this.#render();
   }
 
-  /** @param {!HintBoxHints} hints */
+  /**
+   * @param {!HintBoxHints} hints
+   * @returns {void}
+   */
   update(hints) {
     this.#hints = {...hints};
     this.#render();
   }
 
+  /** @returns {void} */
   reset() {
     this.#hints = {...DEFAULT_HINT_BOX_STATE};
     this.#hintsEnabledCheckbox.checked = false;
     this.#render();
   }
 
+  /** @returns {void} */
   #render() {
     this.#slot.replaceChildren(
       renderHintBox(this.#hints, this.#hintsEnabledCheckbox.checked)

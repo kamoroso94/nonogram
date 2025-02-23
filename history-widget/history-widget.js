@@ -3,7 +3,7 @@ import {assertInstance, queryElement} from '../utils/asserts.js';
 import {HistoryBuffer} from '../utils/history-buffer.js';
 
 /**
- * @typedef HistoryWidgetConfig
+ * @typedef {object} HistoryWidgetConfig
  * @property {string} undoSelector Selector for undo button.
  * @property {string} redoSelector Selector for redo button.
  * @property {number} maxHistory Maximum history length to support.
@@ -76,6 +76,7 @@ export class HistoryWidget extends EventTarget {
     });
   }
 
+  /** @returns {void} */
   #updateActionButtons() {
     this.#undoButton.disabled = !this.#history.hasUndos();
     this.#redoButton.hidden = !this.#history.hasRedos();
@@ -91,12 +92,16 @@ export class HistoryWidget extends EventTarget {
     return this.#history.hasRedos();
   }
 
+  /** @returns {void} */
   reset() {
     this.#history.clear();
     this.#updateActionButtons();
   }
 
-  /** @param {T} value */
+  /**
+   * @param {T} value
+   * @returns {void}
+   */
   push(value) {
     this.#history.push(value);
     this.#updateActionButtons();

@@ -6,9 +6,9 @@
  */
 
 /**
- * @typedef ShortcutConfig
- * @property {!string[]} shortcuts
- * @property {!ShortcutHandler} handler
+ * @typedef {object} ShortcutConfig
+ * @property {string[]} shortcuts
+ * @property {ShortcutHandler} handler
  */
 
 const isMac =
@@ -60,13 +60,13 @@ document.addEventListener('keydown', (event) => {
   };
 
   for (const {shortcuts, handler} of shortcutConfigs) {
+    if (immediatePropagationStopped) break;
     if (!shortcuts.some((shortcut) => isShortcutMatch(event, shortcut))) {
       continue;
     }
 
     try {
       handler.call(document, event);
-      if (immediatePropagationStopped) break;
     } catch (error) {
       console.error(error);
     }
@@ -76,7 +76,8 @@ document.addEventListener('keydown', (event) => {
 /**
  * Attaches a handler for the given `shortcuts` to the document.
  * @param {(string | string[])} shortcuts
- * @param {!ShortcutHandler} handler
+ * @param {ShortcutHandler} handler
+ * @returns {void}
  */
 export function addShortcut(shortcuts, handler) {
   shortcuts = Array.isArray(shortcuts) ? shortcuts : [shortcuts];

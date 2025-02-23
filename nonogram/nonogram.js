@@ -41,20 +41,20 @@ import {
  * where each clue is a list of the sizes of each contiguous block of filled
  * cells in that line.
  * @typedef {object} NonogramClues
- * @property {!number[][]} rowClues A list of clues for each row.
- * @property {!number[][]} colClues A list of clues for each column.
+ * @property {number[][]} rowClues A list of clues for each row.
+ * @property {number[][]} colClues A list of clues for each column.
  */
 
 /**
- * @typedef CellState
+ * @typedef {object} CellState
  * @property {number} color
- * @property {!Cell} state
+ * @property {Cell} state
  * @property {number} row
  * @property {number} column
  */
 
 /**
- * @typedef NonogramAction
+ * @typedef {object} NonogramAction
  * @property {!CellState} before
  * @property {!CellState} after
  */
@@ -75,7 +75,7 @@ export class Nonogram {
   /** @type {Difficulty} */
   #difficulty;
 
-  /** @type {!Cell[][]} */
+  /** @type {Cell[][]} */
   #userPuzzle;
   /** @type {!NonogramClues} */
   #keyGridClues;
@@ -135,6 +135,7 @@ export class Nonogram {
     this.reset();
   }
 
+  /** @returns {void} */
   #wireNonogram() {
     this.#nonogram.addEventListener('mousedown', this.#userToggleCell);
     this.#nonogram.addEventListener('mouseover', this.#userToggleCell);
@@ -143,7 +144,10 @@ export class Nonogram {
     });
   }
 
-  /** @param {!MouseEvent} event */
+  /**
+   * @param {!MouseEvent} event
+   * @returns {void}
+   */
   #userToggleCell = (event) => {
     const primaryPressed = !!(event.buttons & MouseButton.PRIMARY);
     const secondaryPressed = !!(event.buttons & MouseButton.SECONDARY);
@@ -159,6 +163,7 @@ export class Nonogram {
   /**
    * @param {!MouseEvent} event
    * @param {boolean} locking
+   * @returns {void}
    */
   #userUpdateCell(event, locking) {
     // Prevent duplicate event handling on mouse-driven devices while still
@@ -191,6 +196,7 @@ export class Nonogram {
     this.#historyWidget.push({before, after});
   }
 
+  /** @returns {void} */
   #wireHistoryWidget() {
     this.#historyWidget.addEventListener('history.undo', (event) => {
       const action = /** @type {!CustomEvent<NonogramAction>} */ (event).detail;
@@ -202,7 +208,10 @@ export class Nonogram {
     });
   }
 
-  /** @param {!HTMLSelectElement} dimensionsSelect */
+  /**
+   * @param {!HTMLSelectElement} dimensionsSelect
+   * @returns {void}
+   */
   #wireDimensionsSelect(dimensionsSelect) {
     const initialDimensions = localStorage.getItem(NONOGRAM_DIMENSIONS_KEY);
     if (
@@ -224,7 +233,10 @@ export class Nonogram {
     );
   }
 
-  /** @param {!HTMLSelectElement} difficultySelect */
+  /**
+   * @param {!HTMLSelectElement} difficultySelect
+   * @returns {void}
+   */
   #wireDifficultySelect(difficultySelect) {
     const initialDifficulty = localStorage.getItem(NONOGRAM_DIFFICULTY_KEY);
     if (
@@ -242,19 +254,28 @@ export class Nonogram {
     this.#difficulty = /** @type {Difficulty} */ (difficultySelect.value);
   }
 
-  /** @param {!NonogramAction} action */
+  /**
+   * @param {!NonogramAction} action
+   * @returns {void}
+   */
   #undoAction({before}) {
     const {row, column, state, color} = before;
     this.#toggleCellBox(row, column, {forcedState: state, forcedColor: color});
   }
 
-  /** @param {!NonogramAction} action */
+  /**
+   * @param {!NonogramAction} action
+   * @returns {void}
+   */
   #redoAction({after}) {
     const {row, column, state, color} = after;
     this.#toggleCellBox(row, column, {forcedState: state, forcedColor: color});
   }
 
-  /** Reset to random puzzle and calculate grid clues. */
+  /**
+   * Reset to random puzzle and calculate grid clues.
+   * @returns {void}
+   */
   reset() {
     this.#colorPicker.reset();
     this.#hintBox.reset();
@@ -279,7 +300,10 @@ export class Nonogram {
   }
 
   // TODO: reuse DOM when not resizing
-  /** Renders the nonogram puzzle. */
+  /**
+   * Renders the nonogram puzzle.
+   * @returns {void}
+   */
   #render() {
     this.#nonogram.replaceChildren(renderNonogram(this.#dimensions));
     renderGridClues(this.#nonogram, this.#keyGridClues);
@@ -291,6 +315,7 @@ export class Nonogram {
    * @param {object} [options={}]
    * @param {number} [options.color] Clears a specific CSS color when provided.
    * @param {boolean} [options.force] Whether to forcefully clear locked cells.
+   * @returns {void}
    */
   #clear({color, force} = {}) {
     /** @type {!Array<[number, number]>} */
@@ -405,7 +430,10 @@ export class Nonogram {
   }
 
   // TODO: avoid use of blocking dialogs
-  /** @param {DOMHighResTimeStamp} submitTime */
+  /**
+   * @param {DOMHighResTimeStamp} submitTime
+   * @returns {void}
+   */
   #validate(submitTime) {
     const userGridClues = gridToClues(this.#userPuzzle);
     if (compareCluesEqual(userGridClues, this.#keyGridClues)) {
@@ -422,7 +450,10 @@ export class Nonogram {
   }
 }
 
-/** @param {!Event} event */
+/**
+ * @param {!Event} event
+ * @returns {void}
+ */
 function cancelGridEvents(event) {
   const element = /** @type {!Element} */ (event.target);
   if (element.closest('td:has(.cell)')) {
@@ -452,19 +483,19 @@ function getCellDensity(difficulty) {
  * Converts a `grid` of cell values to a list of row and column clues, where each
  * clue is a list of contiguous block sizes in that line. If there are no filled
  * cells in a line, a clue of `[0]` is used.
- * @param {!Cell[][]} grid
+ * @param {Cell[][]} grid
  * @returns {!NonogramClues}
  */
 function gridToClues(grid) {
   /**
-   * @param {!Iterable<!Cell[]>} gridLines
+   * @param {!Iterable<Cell[]>} gridLines
    * @returns {!number[][]}
    */
   function gridLinesToClues(gridLines) {
-    const /** @type {!number[][]} */ lineClues = [];
+    const /** @type {number[][]} */ lineClues = [];
     for (const line of gridLines) {
       let blockSize = 0;
-      const /** @type {!number[]} */ lineClue = [];
+      const /** @type {number[]} */ lineClue = [];
       for (const cell of line) {
         if (coerceCell(cell) === CellEnum.FILLED) {
           blockSize++;
@@ -522,12 +553,12 @@ function compareCluesEqual(clues1, clues2) {
  */
 function cluesToHints({rowClues, colClues}) {
   /**
-   * @param {!number[][]} lineClues
+   * @param {number[][]} lineClues
    * @param {number} lineSize
-   * @returns {!number[]}
+   * @returns {number[]}
    */
   function lineCluesToHints(lineClues, lineSize) {
-    const /** @type {!number[]} */ lines = [];
+    const /** @type {number[]} */ lines = [];
     for (let i = 0; i < lineClues.length; i++) {
       const lineClue = lineClues[i];
       let filledCellCount = 0;

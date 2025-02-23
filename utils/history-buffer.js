@@ -3,7 +3,7 @@
  * @template T
  */
 export class HistoryBuffer {
-  /** @type {!Array<T>} */
+  /** @type {T[]} */
   #buffer;
   /** @type {number} */
   #capacity;
@@ -28,6 +28,7 @@ export class HistoryBuffer {
     this.#capacity = capacity;
   }
 
+  /** @returns {void} */
   clear() {
     this.#size = 0;
     this.#undoCount = 0;
@@ -44,7 +45,10 @@ export class HistoryBuffer {
     return !!this.#undoCount;
   }
 
-  /** @param {T} value */
+  /**
+   * @param {T} value
+   * @returns {void}
+   */
   push(value) {
     this.#size -= this.#undoCount;
     this.#undoCount = 0;

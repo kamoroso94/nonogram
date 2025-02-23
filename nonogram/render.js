@@ -1,6 +1,6 @@
-/** @import {NonogramClues} from './nonogram.js' */
-
 import {LOCALE} from '../config.js';
+
+/** @import {NonogramClues} from './nonogram.js' */
 
 /**
  * Renders the Nonogram table structure.
@@ -21,6 +21,7 @@ export function renderNonogram(size) {
 /**
  * @param {!HTMLTableElement} nonogram
  * @param {!NonogramClues} gridClues
+ * @returns {void}
  */
 export function renderGridClues(nonogram, gridClues) {
   renderColumnClues(nonogram, gridClues.colClues);
@@ -29,7 +30,8 @@ export function renderGridClues(nonogram, gridClues) {
 
 /**
  * @param {!HTMLTableElement} nonogram
- * @param {!number[][]} colClues
+ * @param {number[][]} colClues
+ * @returns {void}
  */
 function renderColumnClues(nonogram, colClues) {
   const firstRow = nonogram.rows[0]?.cells;
@@ -50,7 +52,8 @@ function renderColumnClues(nonogram, colClues) {
 
 /**
  * @param {!HTMLTableElement} nonogram
- * @param {!number[][]} rowClues
+ * @param {number[][]} rowClues
+ * @returns {void}
  */
 function renderRowClues(nonogram, rowClues) {
   if (nonogram.rows.length - 1 !== rowClues.length) {
@@ -73,7 +76,7 @@ const listFormatter = new Intl.ListFormat(LOCALE, {
 
 /**
  * Formats a row clue into a localized string.
- * @param {!number[]} clue
+ * @param {number[]} clue
  * @returns {string}
  */
 function formatRowClue(clue) {
@@ -159,6 +162,7 @@ function renderIcon(name, style = 'sharp') {
 /**
  * Inserts the row headers for the nonogram table.
  * @param {!DocumentFragment} rows
+ * @returns {void}
  */
 function insertNonogramRowHeaders(rows) {
   for (let i = 0; i < rows.childElementCount; i++) {
@@ -191,7 +195,7 @@ export function getCellId(row, column) {
 /**
  * @param {string} id An ID in the form of `"<ROW>-<COL>"` where `ROW` and `COL`
  *     are characters in `DOMAIN`.
- * @returns {![row: number, col: number]}
+ * @returns {[row: number, col: number]}
  */
 export function fromCellId(id) {
   return [DOMAIN.indexOf(id[0]), DOMAIN.indexOf(id[2])];

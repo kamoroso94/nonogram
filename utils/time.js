@@ -8,7 +8,7 @@ export const TIME_FRAMES = /** @type {const} */ (['all-time', 'weekly']);
  * Returns a timestamp representing the start of the `timeFrame` in UTC relative
  * to the provided `date`, or the current time frame otherwise.
  * @param {TimeFrame} timeFrame
- * @param {Date} [date]
+ * @param {!Date} [date]
  * @returns {number}
  */
 export function getTimeFrameStart(timeFrame, date) {
@@ -25,7 +25,7 @@ export function getTimeFrameStart(timeFrame, date) {
 /**
  * Returns the timestamp for the beginning of the UTC week relative to the given
  * `date`, otherwise relative to now.
- * @param {Date} [date]
+ * @param {!Date} [date]
  * @returns {number}
  */
 function getWeekStart(date) {

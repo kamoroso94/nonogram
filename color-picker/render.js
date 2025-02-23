@@ -67,6 +67,7 @@ function renderColorBlock({name, cssColor}) {
 /**
  * Capitalizes the first character of `text`.
  * @param {string} text
+ * @returns {string}
  */
 function capitalize(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);

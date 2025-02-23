@@ -13,26 +13,26 @@ export const DIMENSIONS = /** @type {const} */ ([5, 10, 15, 20]);
 // NOTE: Remember to render new changes.
 /**
  * A statistics entry for a nonogram game.
- * @typedef Statistics
+ * @typedef {object} Statistics
  * @property {number} totalSolved
  * @property {number} bestTime
  */
 
 /**
  * Maps difficulty and dimension to a statistics entry.
- * @typedef {!Partial<Record<StatsKey, !Statistics>>} StatsTable
+ * @typedef {!Partial<!Record<StatsKey, !Statistics>>} StatsTable
  */
 
 /**
  * Records all statistics for every time frame.
- * @typedef TimelyStatistics
+ * @typedef {object} TimelyStatistics
  * @property {!Record<TimeFrame, !StatsTable>} timeFrames
  * @property {!Record<TimeFrame, number>} timeFrameStarts
  */
 
 /**
  * Creates an empty `TimelyStatistics` object relative to `now`.
- * @param {Date} [now]
+ * @param {!Date} [now]
  * @returns {!TimelyStatistics}
  */
 export function createTimelyStatistics(now) {

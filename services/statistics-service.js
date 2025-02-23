@@ -23,13 +23,16 @@ import {getTimeFrameStart, TIME_FRAMES} from '../utils/time.js';
  * @import {TimeFrame} from '../utils/time.js'
  */
 
-/** @type {(TimelyStatistics | undefined)} */
+/** @type {(!TimelyStatistics | undefined)} */
 let cachedTimelyStats;
 
 /** Emits "statistics.change" and "statistics.clear" events. */
 export const statisticsChanges = new EventTarget();
 
-/** Clears all nonogram statistics. This action cannot be undone. */
+/**
+ * Clears all nonogram statistics. This action cannot be undone.
+ * @returns {void}
+ */
 export function clearAllStatistics() {
   cachedTimelyStats = undefined;
   localStorage.removeItem(NONOGRAM_STATS_KEY);
@@ -41,7 +44,7 @@ export function clearAllStatistics() {
  * @param {TimeFrame} timeFrame
  * @param {Difficulty} difficulty
  * @param {Dimension} dimension
- * @returns {(Statistics | undefined)}
+ * @returns {(!Statistics | undefined)}
  */
 export function getStatistics(timeFrame, difficulty, dimension) {
   const timelyStats = getTimelyStatistics();
@@ -56,6 +59,7 @@ export function getStatistics(timeFrame, difficulty, dimension) {
  * @param {Difficulty} difficulty
  * @param {Dimension} dimension
  * @param {number} totalTime
+ * @returns {void}
  */
 export function updateStatistics(difficulty, dimension, totalTime) {
   const timelyStats = getTimelyStatistics();
@@ -94,7 +98,7 @@ function getTimelyStatistics() {
 
 /**
  * Resets the timely scores if outdated.
- * @param {Date} [date]
+ * @param {!Date} [date]
  * @returns {boolean} Whether any scores were reset.
  */
 function refreshTimelyStats(date) {
@@ -114,6 +118,7 @@ function refreshTimelyStats(date) {
   return changed;
 }
 
+/** @returns {void} */
 function recordTimelyStats() {
   if (!cachedTimelyStats) return;
 
@@ -125,6 +130,7 @@ function recordTimelyStats() {
  * @param {StatsKey} statsKey
  * @param {!StatsTable} statsTable
  * @param {number} totalTime
+ * @returns {void}
  */
 function updateStatsTable(statsKey, statsTable, totalTime) {
   const entry = (statsTable[statsKey] ??= createStatistics());

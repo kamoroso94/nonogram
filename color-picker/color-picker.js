@@ -130,7 +130,10 @@ export class ColorPicker extends EventTarget {
     });
   }
 
-  /** @param {number} index */
+  /**
+   * @param {number} index
+   * @returns {boolean}
+   */
   #isValidPaletteIndex(index) {
     try {
       this.#validatePaletteIndex(index);
@@ -143,6 +146,7 @@ export class ColorPicker extends EventTarget {
   /**
    * Validates the given `index` to see if it's a valid palette index.
    * @param {number} index
+   * @returns {void}
    * @throws {!TypeError} Whenever `index` isn't an integer.
    * @throws {!RangeError} Whenever `index` isn't in the palette range.
    */
@@ -166,7 +170,10 @@ export class ColorPicker extends EventTarget {
     return this.#palette[paletteIndex].cssColor;
   }
 
-  /** Resets the color picker back to the default state. */
+  /**
+   * Resets the color picker back to the default state.
+   * @returns {void}
+   */
   reset() {
     this.#changeColor(DEFAULT_PALETTE_INDEX);
   }
@@ -175,6 +182,7 @@ export class ColorPicker extends EventTarget {
    * @param {number} paletteIndex
    * @param {object} [options={}]
    * @param {boolean} [options.fromEvent]
+   * @returns {void}
    * @fires ColorPicker#"color.change" Whenever `options.fromEvent` is
    *     provided.
    */
@@ -192,13 +200,4 @@ export class ColorPicker extends EventTarget {
       this.dispatchEvent(new CustomEvent('color.change', {detail: this.value}));
     }
   }
-}
-
-/**
- * Parses a string of the form "var(--color-XYZ)" to "XYZ".
- * @param {string} colorVar
- * @returns string
- */
-function parseColorVar(colorVar) {
-  return colorVar.slice(12, -1);
 }

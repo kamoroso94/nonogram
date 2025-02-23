@@ -17,6 +17,7 @@ import {DIMENSIONS} from './statistics.js';
  * Renders the timely statistics tables for the given `difficulty`.
  * @param {!Element} root
  * @param {Difficulty} difficulty
+ * @returns {void}
  */
 export function renderStatistics(root, difficulty) {
   root.querySelector('.loading')?.remove();
@@ -30,6 +31,7 @@ export function renderStatistics(root, difficulty) {
  * @param {!Element} root
  * @param {TimeFrame} timeFrame
  * @param {Difficulty} difficulty
+ * @returns {void}
  */
 function renderStatisticsTable(root, timeFrame, difficulty) {
   const table = getStatsTable(root, timeFrame);
@@ -88,6 +90,7 @@ function getTableCaption(timeFrame) {
 /**
  * Inserts the column headers at the top of the given `table`.
  * @param {!HTMLTableElement} table
+ * @returns {void}
  */
 function insertColumnHeaders(table) {
   const row = table.insertRow(0);
@@ -99,6 +102,7 @@ function insertColumnHeaders(table) {
 /**
  * Inserts the row headers into the given `table`.
  * @param {!HTMLTableElement} table
+ * @returns {void}
  */
 function insertRowHeaders(table) {
   for (const dimension of DIMENSIONS) {
@@ -111,6 +115,7 @@ function insertRowHeaders(table) {
  * Generates a table header cell with the given `label` and `scope`.
  * @param {string} label
  * @param {('row' | 'col')} [scope]
+ * @returns {!HTMLTableCellElement} A `<th>` element.
  */
 function createTableHeader(label, scope) {
   const tableHeader = document.createElement('th');
@@ -123,7 +128,8 @@ function createTableHeader(label, scope) {
  * Adds the statistics `entry` for the given `dimension` to the `table`.
  * @param {!HTMLTableElement} table
  * @param {number} rowIndex
- * @param {(Statistics | undefined)} entry
+ * @param {(!Statistics | undefined)} entry
+ * @returns {void}
  */
 function updateStatsRow(table, rowIndex, entry) {
   const row = table.rows[rowIndex];
@@ -160,6 +166,7 @@ function createBestTime(bestTime) {
  * @param {!HTMLTableRowElement} row
  * @param {number} cellIndex
  * @param {?(Node | string)} data
+ * @returns {void}
  * @throws {!RangeError} When the `cellIndex` is beyond the row end.
  */
 function setCellData(row, cellIndex, data) {

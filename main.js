@@ -7,6 +7,7 @@ import {StatisticsWidget} from './statistics-widget/statistics-widget.js';
 import {assertExists} from './utils/asserts.js';
 import {isEnabled, NONOGRAM_STATISTICS} from './utils/experiments.js';
 
+/** @returns {void} */
 function initializeNonogram() {
   const historyWidget = new HistoryWidget({
     undoSelector: '#undo-action',
@@ -47,6 +48,7 @@ function initializeNonogram() {
   }
 }
 
+/** @returns {void} */
 function initializeGallery() {
   if (!document.fullscreenEnabled) return;
 

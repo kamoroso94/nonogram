@@ -34,6 +34,7 @@ export class StatisticsWidget {
     );
     this.#wireDifficultySelect(difficultySelect);
 
+    // TODO: avoid use of blocking dialogs
     queryElement(deleteSelector).addEventListener('click', () => {
       if (confirm('Are you sure? This action cannot be undone.')) {
         clearAllStatistics();
@@ -48,7 +49,10 @@ export class StatisticsWidget {
     this.#render();
   }
 
-  /** @param {!HTMLSelectElement} difficultySelect */
+  /**
+   * @param {!HTMLSelectElement} difficultySelect
+   * @returns {void}
+   */
   #wireDifficultySelect(difficultySelect) {
     const initialDifficulty = localStorage.getItem(
       NONOGRAM_STATS_DIFFICULTY_KEY
@@ -71,6 +75,7 @@ export class StatisticsWidget {
     this.#difficulty = /** @type {Difficulty} */ (difficultySelect.value);
   }
 
+  /** @returns {void} */
   #render() {
     renderStatistics(this.#root, this.#difficulty);
   }
