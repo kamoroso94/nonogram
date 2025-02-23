@@ -1,4 +1,5 @@
 import {NONOGRAM_STATS_DIFFICULTY_KEY} from '../config.js';
+import {DialogAction, openDialog} from '../services/dialog-service.js';
 import {
   clearAllStatistics,
   statisticsChanges,
@@ -34,9 +35,17 @@ export class StatisticsWidget {
     );
     this.#wireDifficultySelect(difficultySelect);
 
-    // TODO: avoid use of blocking dialogs
-    queryElement(deleteSelector).addEventListener('click', () => {
-      if (confirm('Are you sure? This action cannot be undone.')) {
+    queryElement(deleteSelector).addEventListener('click', async () => {
+      const result = await openDialog({
+        title: 'Delete Statistics',
+        bodyText: 'Are you sure? This action cannot be undone.',
+        primaryButton: {
+          label: 'Delete',
+          value: DialogAction.CONFIRM,
+        },
+        secondaryButton: {label: 'Cancel'},
+      });
+      if (result === DialogAction.CONFIRM) {
         clearAllStatistics();
         this.#render();
       }

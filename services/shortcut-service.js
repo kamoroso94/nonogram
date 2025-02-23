@@ -59,6 +59,7 @@ document.addEventListener('keydown', (event) => {
     delete (/** @type {*} */ (event).stopImmediatePropagation);
   };
 
+  let eventHandled = false;
   for (const {shortcuts, handler} of shortcutConfigs) {
     if (immediatePropagationStopped) break;
     if (!shortcuts.some((shortcut) => isShortcutMatch(event, shortcut))) {
@@ -70,7 +71,10 @@ document.addEventListener('keydown', (event) => {
     } catch (error) {
       console.error(error);
     }
+    eventHandled = true;
   }
+
+  if (eventHandled) event.preventDefault();
 });
 
 /**
