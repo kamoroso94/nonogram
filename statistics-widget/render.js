@@ -1,3 +1,4 @@
+import {LOCALE} from '../config.js';
 import {getStatistics} from '../services/statistics-service.js';
 import {assertUnreachable} from '../utils/asserts.js';
 import {
@@ -134,7 +135,7 @@ function updateStatsRow(table, rowIndex, entry) {
     return;
   }
 
-  setCellData(row, cellIndex++, entry.totalSolved.toLocaleString('en-US'));
+  setCellData(row, cellIndex++, entry.totalSolved.toLocaleString(LOCALE));
   setCellData(row, cellIndex++, createBestTime(entry.bestTime));
 }
 

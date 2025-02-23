@@ -1,5 +1,7 @@
 /** @import {NonogramClues} from './nonogram.js' */
 
+import {LOCALE} from '../config.js';
+
 /**
  * Renders the Nonogram table structure.
  * @param {number} size
@@ -38,10 +40,10 @@ function renderColumnClues(nonogram, colClues) {
   for (let i = 0; i < colClues.length; i++) {
     const colClue = colClues[i];
     const columnHeader = firstRow[i + 1];
-    columnHeader.replaceChildren(colClue[0].toLocaleString('en-US'));
+    columnHeader.replaceChildren(colClue[0].toLocaleString(LOCALE));
     for (const blockSize of colClue.values().drop(1)) {
       columnHeader.append(document.createElement('br'));
-      columnHeader.append(blockSize.toLocaleString('en-US'));
+      columnHeader.append(blockSize.toLocaleString(LOCALE));
     }
   }
 }
@@ -64,7 +66,7 @@ function renderRowClues(nonogram, rowClues) {
 }
 
 /** Used to format the row clues. */
-const listFormatter = new Intl.ListFormat('en-US', {
+const listFormatter = new Intl.ListFormat(LOCALE, {
   type: 'unit',
   style: 'narrow',
 });
@@ -75,7 +77,7 @@ const listFormatter = new Intl.ListFormat('en-US', {
  * @returns {string}
  */
 function formatRowClue(clue) {
-  return listFormatter.format(clue.map((x) => x.toLocaleString('en-US')));
+  return listFormatter.format(clue.map((x) => x.toLocaleString(LOCALE)));
 }
 
 /**

@@ -1,5 +1,7 @@
 /** @import {HintBoxHints} from './hint-box.js' */
 
+import {LOCALE} from '../config.js';
+
 /**
  * Renders the hint box for the nonogram.
  * @param {!HintBoxHints} hints The row and column hints.
@@ -52,7 +54,7 @@ function renderBoldMessage(text) {
 }
 
 /** Used to format row and column lists. */
-const listFormatter = new Intl.ListFormat('en-US', {
+const listFormatter = new Intl.ListFormat(LOCALE, {
   style: 'long',
   type: 'conjunction',
 });
@@ -74,12 +76,12 @@ function formatHints(hints) {
  */
 function* formatRange(start, end) {
   if (end - start >= 2) {
-    yield `${start.toLocaleString('en-US')}–${end.toLocaleString('en-US')}`;
+    yield `${start.toLocaleString(LOCALE)}–${end.toLocaleString(LOCALE)}`;
     return;
   }
 
-  yield start.toLocaleString('en-US');
-  if (start !== end) yield end.toLocaleString('en-US');
+  yield start.toLocaleString(LOCALE);
+  if (start !== end) yield end.toLocaleString(LOCALE);
 }
 
 /**

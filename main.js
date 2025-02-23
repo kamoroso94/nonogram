@@ -1,28 +1,11 @@
 import {ColorPicker} from './color-picker/color-picker.js';
+import {MAX_UNDO_HISTORY, PALETTE} from './config.js';
 import {HintBox} from './hint-box/hint-box.js';
 import {HistoryWidget} from './history-widget/history-widget.js';
 import {Nonogram} from './nonogram/nonogram.js';
 import {StatisticsWidget} from './statistics-widget/statistics-widget.js';
 import {assertExists} from './utils/asserts.js';
 import {isEnabled, NONOGRAM_STATISTICS} from './utils/experiments.js';
-
-/** @import {Color} from './color-picker/color-picker.js'; */
-
-const MAX_UNDO_HISTORY = 50;
-
-/** @type {readonly Color[]} */
-const PALETTE = [
-  'default',
-  'red',
-  'green',
-  'blue',
-  'orange',
-  'purple',
-  'gray',
-].map((color) => ({
-  name: color,
-  cssColor: `var(--color-${color})`,
-}));
 
 function initializeNonogram() {
   const historyWidget = new HistoryWidget({

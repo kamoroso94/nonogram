@@ -1,3 +1,4 @@
+import {NONOGRAM_STATS_DIFFICULTY_KEY} from '../config.js';
 import {
   clearAllStatistics,
   statisticsChanges,
@@ -14,8 +15,6 @@ import {DIFFICULTIES} from './statistics.js';
  * @property {string} difficultySelector
  * @property {string} deleteSelector
  */
-
-const NONOGRAM_STATS_DIFFICULTY_KEY = 'nonogram.statistics.difficulty';
 
 /** Widget controlling the nonogram statistics tables. */
 export class StatisticsWidget {

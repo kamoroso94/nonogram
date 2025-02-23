@@ -1,3 +1,4 @@
+import {NONOGRAM_DIFFICULTY_KEY, NONOGRAM_DIMENSIONS_KEY} from '../config.js';
 import {updateStatistics} from '../services/statistics-service.js';
 import {DIFFICULTIES, DIMENSIONS} from '../statistics-widget/statistics.js';
 import {
@@ -57,9 +58,6 @@ import {
  * @property {!CellState} before
  * @property {!CellState} after
  */
-
-const NONOGRAM_DIFFICULTY_KEY = 'nonogram.difficulty';
-const NONOGRAM_DIMENSIONS_KEY = 'nonogram.dimensions';
 
 /** Component that manages the nonogram puzzle. */
 export class Nonogram {

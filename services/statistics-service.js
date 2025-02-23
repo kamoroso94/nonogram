@@ -3,6 +3,7 @@
  * related to solving nonogram puzzles.
  */
 
+import {NONOGRAM_STATS_KEY} from '../config.js';
 import {
   createStatistics,
   createTimelyStatistics,
@@ -21,8 +22,6 @@ import {getTimeFrameStart, TIME_FRAMES} from '../utils/time.js';
  * } from '../statistics-widget/statistics.js'
  * @import {TimeFrame} from '../utils/time.js'
  */
-
-const NONOGRAM_STATS_KEY = 'nonogram.statistics';
 
 /** @type {(TimelyStatistics | undefined)} */
 let cachedTimelyStats;
