@@ -36,7 +36,7 @@
 #nonogram-game th {
   padding: 0 2px;
   border: 2px solid light-dark(#000, #fff);
-  background-color: light-dark(#fff, #1b1b1b);
+  background-color: light-dark(#fff, #222);
   text-align: right;
   vertical-align: middle;
   white-space: nowrap;
