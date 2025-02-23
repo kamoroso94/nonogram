@@ -1,3 +1,5 @@
+import {assertUnreachable} from '../utils/asserts.js';
+
 /** @typedef {('empty' | 'crossed' | 'filled' | 'locked')} Cell */
 
 /** @enum {Cell} The state of a nonogram cell. */
@@ -22,7 +24,7 @@ export function coerceCell(cell) {
     case CellEnum.LOCKED:
       return CellEnum.FILLED;
     default:
-      throw new TypeError(`Unknown cell "${cell}"`);
+      assertUnreachable(cell, `Unknown cell "${cell}"`);
   }
 }
 
