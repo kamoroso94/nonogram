@@ -54,12 +54,14 @@ function initializeGallery() {
 
   const gallery = assertExists(document.getElementById('gallery'));
   gallery.addEventListener('click', (event) => {
-    if (document.fullscreenElement) return;
-
     const element = /** @type {!HTMLElement} */ (event.target);
     if (!element.matches('img')) return;
 
-    element.requestFullscreen({navigationUI: 'show'});
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      element.requestFullscreen({navigationUI: 'show'});
+    }
   });
 }
 

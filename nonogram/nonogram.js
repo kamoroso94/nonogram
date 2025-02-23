@@ -1,4 +1,5 @@
 import {NONOGRAM_DIFFICULTY_KEY, NONOGRAM_DIMENSIONS_KEY} from '../config.js';
+import {addShortcut} from '../services/shortcut-service.js';
 import {updateStatistics} from '../services/statistics-service.js';
 import {DIFFICULTIES, DIMENSIONS} from '../statistics-widget/statistics.js';
 import {
@@ -131,6 +132,10 @@ export class Nonogram {
       HTMLSelectElement
     );
     this.#wireDifficultySelect(difficultySelect);
+
+    addShortcut('Ctrl+Enter', ({timeStamp}) => {
+      this.#validate(timeStamp);
+    });
 
     this.reset();
   }
