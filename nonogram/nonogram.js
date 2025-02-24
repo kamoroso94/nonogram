@@ -7,6 +7,7 @@ import {
   assertUnreachable,
   queryElement,
 } from '../utils/asserts.js';
+import {isEnabled, NONOGRAM_STATISTICS} from '../utils/experiments.js';
 import {getColumns, matrix} from '../utils/matrix.js';
 import {MouseButton} from '../utils/mouse-button.js';
 import {CellEnum, coerceCell, toggleCell} from './cell.js';
@@ -442,8 +443,11 @@ export class Nonogram {
   #validate(submitTime) {
     const userGridClues = gridToClues(this.#userPuzzle);
     if (compareCluesEqual(userGridClues, this.#keyGridClues)) {
-      const totalTime = submitTime - (this.#gameStart ?? submitTime);
-      updateStatistics(this.#difficulty, this.#dimensions, totalTime);
+      if (isEnabled(NONOGRAM_STATISTICS)) {
+        const totalTime = submitTime - (this.#gameStart ?? submitTime);
+        updateStatistics(this.#difficulty, this.#dimensions, totalTime);
+      }
+
       if (confirm('You won! Click OK to play a new game.')) {
         this.reset();
       }
