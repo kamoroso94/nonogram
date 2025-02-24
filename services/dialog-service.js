@@ -28,10 +28,19 @@ dialog.addEventListener('click', ({target}) => {
 });
 
 /**
- * Configuration for a button with its label and value.
+ * Actions for a confirmation dialog.
+ * @enum {string}
+ */
+export const DialogAction = {
+  CONFIRM: 'confirm',
+  CANCEL: 'cancel',
+};
+
+/**
+ * Configuration for an action button with its label and value.
  * @typedef {object} ButtonConfig
  * @property {string} label
- * @property {string} value
+ * @property {string} [value]
  */
 
 /**
@@ -44,11 +53,11 @@ dialog.addEventListener('click', ({target}) => {
  */
 
 /**
- * Opens a dialog with configuration describing which buttons to render.
+ * Opens a cancelable dialog with configuration for content and actions.
  * @param {!DialogConfig} config
- * @returns {!Promise<string>} The value of the button clicked, or the empty
- *     string if cancelled with the Escape key. Rejects if the dialog is already
- *     open.
+ * @returns {!Promise<string>} Resolves to the value of the button clicked, or
+ *     the empty string if canceled with the Escape key. Rejects if the dialog
+ *     is already open.
  */
 export async function openDialog({
   title,
@@ -62,16 +71,18 @@ export async function openDialog({
   dialogTitle.textContent = title;
   dialogBody.textContent = bodyText;
   dialogPrimaryAction.textContent = primaryButton.label;
-  dialogPrimaryAction.value = primaryButton.value;
-  dialogSecondaryAction.hidden = !!secondaryButton;
+  dialogPrimaryAction.value = primaryButton.value ?? '';
+  dialogSecondaryAction.hidden = !secondaryButton;
   if (secondaryButton) {
     dialogSecondaryAction.textContent = secondaryButton.label;
-    dialogSecondaryAction.value = secondaryButton.value;
+    dialogSecondaryAction.value = secondaryButton.value ?? '';
   }
 
-  return new Promise((resolve) => {
+  const result = new Promise((resolve) => {
     dialog.addEventListener('close', () => resolve(dialog.returnValue), {
       once: true,
     });
   });
+  dialog.showModal();
+  return result;
 }

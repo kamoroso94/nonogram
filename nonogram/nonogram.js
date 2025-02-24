@@ -1,4 +1,5 @@
 import {NONOGRAM_DIFFICULTY_KEY, NONOGRAM_DIMENSIONS_KEY} from '../config.js';
+import {DialogAction, openDialog} from '../services/dialog-service.js';
 import {addShortcut} from '../services/shortcut-service.js';
 import {updateStatistics} from '../services/statistics-service.js';
 import {DIFFICULTIES, DIMENSIONS} from '../statistics-widget/statistics.js';
@@ -434,23 +435,34 @@ export class Nonogram {
     return true;
   }
 
-  // TODO: avoid use of blocking dialogs
   /**
    * @param {DOMHighResTimeStamp} submitTime
-   * @returns {void}
+   * @returns {!Promise<void>}
    */
-  #validate(submitTime) {
+  async #validate(submitTime) {
     const userGridClues = gridToClues(this.#userPuzzle);
     if (compareCluesEqual(userGridClues, this.#keyGridClues)) {
       const totalTime = submitTime - (this.#gameStart ?? submitTime);
       updateStatistics(this.#difficulty, this.#dimensions, totalTime);
-      if (confirm('You won! Click OK to play a new game.')) {
-        this.reset();
-      }
+
+      const result = await openDialog({
+        title: 'You won!',
+        bodyText: 'Click OK to play a new game.',
+        primaryButton: {
+          label: 'OK',
+          value: DialogAction.CONFIRM,
+        },
+        secondaryButton: {label: 'Cancel'},
+      });
+      if (result === DialogAction.CONFIRM) this.reset();
       return;
     }
 
-    alert('You lose! Try again.');
+    await openDialog({
+      title: 'You lose!',
+      bodyText: 'Click OK to try again.',
+      primaryButton: {label: 'OK'},
+    });
     this.#clear({force: true});
   }
 }
