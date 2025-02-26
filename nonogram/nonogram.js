@@ -449,8 +449,9 @@ export class Nonogram {
       }
 
       const result = await openDialog({
+        role: 'alertdialog',
         title: 'You won!',
-        bodyText: 'Click OK to play a new game.',
+        body: 'Click OK to play a new game.',
         primaryButton: {
           label: 'OK',
           value: DialogAction.CONFIRM,
@@ -463,7 +464,7 @@ export class Nonogram {
 
     await openDialog({
       title: 'You lose!',
-      bodyText: 'Click OK to try again.',
+      body: 'Click OK to try again.',
       primaryButton: {label: 'OK'},
     });
     this.#clear({force: true});

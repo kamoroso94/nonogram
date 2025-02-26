@@ -46,8 +46,10 @@ export const DialogAction = {
 /**
  * Configuration for rendering a dialog.
  * @typedef {object} DialogConfig
+ * @property {('dialog' | 'alertdialog')} [role]
  * @property {string} title
- * @property {string} bodyText
+ * @property {(!Node | string)} body Must be phrasing content only. See
+ *     {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Content_categories#phrasing_content}.
  * @property {!ButtonConfig} primaryButton
  * @property {!ButtonConfig} [secondaryButton]
  */
@@ -60,16 +62,18 @@ export const DialogAction = {
  *     is already open.
  */
 export async function openDialog({
+  role = 'dialog',
   title,
-  bodyText,
+  body,
   primaryButton,
   secondaryButton,
 }) {
   if (dialog.open) throw new Error('Dialog already open');
 
   dialog.returnValue = '';
+  dialog.role = role;
   dialogTitle.textContent = title;
-  dialogBody.textContent = bodyText;
+  dialogBody.replaceChildren(body);
   dialogPrimaryAction.textContent = primaryButton.label;
   dialogPrimaryAction.value = primaryButton.value ?? '';
   dialogSecondaryAction.hidden = !secondaryButton;

@@ -37,8 +37,9 @@ export class StatisticsWidget {
 
     queryElement(deleteSelector).addEventListener('click', async () => {
       const result = await openDialog({
+        role: 'alertdialog',
         title: 'Delete Statistics',
-        bodyText: 'Are you sure? This action cannot be undone.',
+        body: 'Are you sure? This action cannot be undone.',
         primaryButton: {
           label: 'Delete',
           value: DialogAction.CONFIRM,
