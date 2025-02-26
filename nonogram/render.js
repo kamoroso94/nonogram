@@ -1,4 +1,5 @@
 import {LOCALE} from '../config.js';
+import {durationToIsoString, formatDurationShort} from '../utils/time.js';
 
 /** @import {NonogramClues} from './nonogram.js' */
 
@@ -172,6 +173,32 @@ function insertNonogramRowHeaders(rows) {
     th.title = `R${i + 1}`;
     tr.prepend(th);
   }
+}
+
+/**
+ * Renders the body of the success dialog for solving a nonogram.
+ * @param {number} totalTime
+ * @returns {!DocumentFragment}
+ */
+export function renderSuccessMessage(totalTime) {
+  const fragment = document.createDocumentFragment();
+  fragment.append(
+    'Puzzle completed in ',
+    renderTotalTime(totalTime),
+    '. Click OK to play a new game.'
+  );
+  return fragment;
+}
+
+/**
+ * @param {number} totalTime
+ * @returns {!HTMLTimeElement}
+ */
+function renderTotalTime(totalTime) {
+  const time = document.createElement('time');
+  time.dateTime = durationToIsoString(totalTime);
+  time.textContent = formatDurationShort(totalTime);
+  return time;
 }
 
 /** Domain of characters used to encode row and column numbers. */

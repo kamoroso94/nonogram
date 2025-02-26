@@ -17,6 +17,7 @@ import {
   getCellId,
   renderGridClues,
   renderNonogram,
+  renderSuccessMessage,
 } from './render.js';
 
 /**
@@ -443,15 +444,19 @@ export class Nonogram {
   async #validate(submitTime) {
     const userGridClues = gridToClues(this.#userPuzzle);
     if (compareCluesEqual(userGridClues, this.#keyGridClues)) {
+      /** @type {(!Node | string)} */
+      let body = 'Click OK to play a new game.';
+
       if (isEnabled(NONOGRAM_STATISTICS)) {
         const totalTime = submitTime - (this.#gameStart ?? submitTime);
+        body = renderSuccessMessage(totalTime);
         updateStatistics(this.#difficulty, this.#dimensions, totalTime);
       }
 
       const result = await openDialog({
         role: 'alertdialog',
         title: 'You won!',
-        body: 'Click OK to play a new game.',
+        body,
         primaryButton: {
           label: 'OK',
           value: DialogAction.CONFIRM,

@@ -104,7 +104,7 @@ export function durationToIsoString(durationMillis) {
  * @param {number} durationMillis
  * @returns {string}
  */
-export function formatDuration(durationMillis) {
+export function formatDurationDigital(durationMillis) {
   const {days, hours, minutes, seconds, milliseconds} =
     partitionDuration(durationMillis);
   const h = days * 24 + hours;
@@ -112,4 +112,29 @@ export function formatDuration(durationMillis) {
   const s = String(seconds).padStart(2, '0');
   const ms = String(milliseconds).padStart(3, '0');
   return `${h}:${m}:${s}.${ms}`;
+}
+
+/**
+ * Formats a duration in the "H hr, M min, S sec" format.
+ * @param {number} durationMillis
+ * @returns {string}
+ */
+export function formatDurationShort(durationMillis) {
+  if (!durationMillis) return '0 sec';
+
+  // TODO: use `Intl.DurationFormat` once supported.
+  const /** @type {string[]} */ parts = [];
+  const {
+    days,
+    hours,
+    minutes: m,
+    seconds: s,
+  } = partitionDuration(durationMillis);
+
+  const h = days * 24 + hours;
+  if (h) parts.push(`${h} hr`);
+  if (m) parts.push(`${m} min`);
+  if (s) parts.push(`${s} sec`);
+
+  return parts.join(', ');
 }

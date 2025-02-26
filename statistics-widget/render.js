@@ -3,7 +3,7 @@ import {getStatistics} from '../services/statistics-service.js';
 import {assertUnreachable} from '../utils/asserts.js';
 import {
   durationToIsoString,
-  formatDuration,
+  formatDurationDigital,
   TIME_FRAMES,
 } from '../utils/time.js';
 import {DIMENSIONS} from './statistics.js';
@@ -158,7 +158,7 @@ function createBestTime(bestTime) {
   bestTime = Math.min(bestTime, MAX_TIME);
   const time = document.createElement('time');
   time.dateTime = durationToIsoString(bestTime);
-  time.textContent = formatDuration(bestTime);
+  time.textContent = formatDurationDigital(bestTime);
   return time;
 }
 
