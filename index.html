@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-US">
   <head>
     <title>Nonogram</title>
@@ -99,21 +99,18 @@
     </section>
 
     <section id="statistics" hidden>
-      <h2>Statistics</h2>
+      <h2 id="stats-title">Statistics</h2>
 
-      <div class="padded">
-        <label>
-          Difficulty:
-          <!-- TODO: refactor into tab list -->
-          <select id="stats-difficulty">
-            <option value="easy">Easy</option>
-            <option value="medium" selected>Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-        </label>
+      <!-- TODO: Add styles -->
+      <div role="tablist" id="stats-tabs" aria-labelledby="stats-title">
+        <button type="button" value="easy" role="tab">Easy</button>
+        <button type="button" value="medium" role="tab" aria-selected="true">
+          Medium
+        </button>
+        <button type="button" value="hard" role="tab">Hard</button>
       </div>
 
-      <div id="stats-tables" class="padded">
+      <div role="tabpanel" class="padded">
         <p class="loading"><em>Loading statistics…</em></p>
       </div>
 

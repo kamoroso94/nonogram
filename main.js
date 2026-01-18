@@ -41,8 +41,10 @@ function initializeNonogram() {
   if (isEnabled(NONOGRAM_STATISTICS)) {
     assertExists(document.getElementById('statistics')).hidden = false;
     void new StatisticsWidget({
-      rootSelector: '#stats-tables',
-      difficultySelector: '#stats-difficulty',
+      difficultyTabsConfig: {
+        selector: '#stats-tabs',
+        panelFocusable: true,
+      },
       deleteSelector: '#stats-clear',
     });
   }

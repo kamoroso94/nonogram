@@ -1,11 +1,12 @@
 /**
  * @template T
  * @param {(T | null | undefined)} value
+ * @param {string} [message]
  * @returns {!T}
  * @throws {!TypeError} When `value` is nullish.
  */
-export function assertExists(value) {
-  if (value == null) throw new TypeError(`Value is ${value}`);
+export function assertExists(value, message) {
+  if (value == null) throw new TypeError(message ?? `Value is ${value}`);
   return value;
 }
 
