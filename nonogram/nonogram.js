@@ -103,7 +103,7 @@ export class Nonogram {
   }) {
     this.#nonogram = assertInstance(
       queryElement(slotSelector),
-      HTMLTableElement
+      HTMLTableElement,
     );
     this.#wireNonogram();
 
@@ -126,13 +126,13 @@ export class Nonogram {
 
     const dimensionsSelect = assertInstance(
       queryElement(dimensionsSelector),
-      HTMLSelectElement
+      HTMLSelectElement,
     );
     this.#wireDimensionsSelect(dimensionsSelect);
 
     const difficultySelect = assertInstance(
       queryElement(difficultySelector),
-      HTMLSelectElement
+      HTMLSelectElement,
     );
     this.#wireDifficultySelect(difficultySelect);
 
@@ -190,7 +190,7 @@ export class Nonogram {
     if (!cellBox) return;
 
     const [row, column] = fromCellId(
-      /** @type {!HTMLElement} */ (cellBox.parentElement).id
+      /** @type {!HTMLElement} */ (cellBox.parentElement).id,
     );
     const before = this.#getCellState(row, column);
     if (
@@ -294,7 +294,7 @@ export class Nonogram {
     this.#userPuzzle = matrix(
       this.#dimensions,
       this.#dimensions,
-      () => CellEnum.EMPTY
+      () => CellEnum.EMPTY,
     );
     const keyPuzzle = matrix(this.#dimensions, this.#dimensions, () => {
       return Math.random() < getCellDensity(this.#difficulty)
@@ -397,7 +397,7 @@ export class Nonogram {
   #toggleCellBox(
     row,
     col,
-    {locking, forcedState, forcedColor, updateTime = performance.now()} = {}
+    {locking, forcedState, forcedColor, updateTime = performance.now()} = {},
   ) {
     const cellBox = /** @type {!HTMLElement} */ (
       queryElement(`#${getCellId(row, col)} > .cell`)
@@ -418,19 +418,19 @@ export class Nonogram {
     }
     cellBox.classList.toggle(
       'filled',
-      coerceCell(finalState) === CellEnum.FILLED
+      coerceCell(finalState) === CellEnum.FILLED,
     );
     cellBox.classList.toggle('locked', finalState === CellEnum.LOCKED);
 
     const crossIcon = assertInstance(
       cellBox.querySelector('.cross'),
-      HTMLElement
+      HTMLElement,
     );
     crossIcon.hidden = finalState !== CellEnum.CROSSED;
 
     const lockIcon = assertInstance(
       cellBox.querySelector('.lock'),
-      HTMLElement
+      HTMLElement,
     );
     lockIcon.hidden = finalState !== CellEnum.LOCKED;
 
@@ -443,36 +443,37 @@ export class Nonogram {
    */
   async #validate(submitTime) {
     const userGridClues = gridToClues(this.#userPuzzle);
-    if (compareCluesEqual(userGridClues, this.#keyGridClues)) {
-      /** @type {(!Node | string)} */
-      let body = 'Click OK to play a new game.';
-
-      if (isEnabled(NONOGRAM_STATISTICS)) {
-        const totalTime = submitTime - (this.#gameStart ?? submitTime);
-        body = renderSuccessMessage(totalTime);
-        updateStatistics(this.#difficulty, this.#dimensions, totalTime);
-      }
-
-      const result = await openDialog({
-        role: 'alertdialog',
-        title: 'You won!',
-        body,
-        primaryButton: {
-          label: 'OK',
-          value: DialogAction.CONFIRM,
-        },
-        secondaryButton: {label: 'Cancel'},
+    if (!compareCluesEqual(userGridClues, this.#keyGridClues)) {
+      await openDialog({
+        title: 'You lose!',
+        body: 'Click OK to try again.',
+        primaryButton: {label: 'OK'},
       });
-      if (result === DialogAction.CONFIRM) this.reset();
+      this.#clear({force: true});
+      this.#gameStart = undefined;
       return;
     }
 
-    await openDialog({
-      title: 'You lose!',
-      body: 'Click OK to try again.',
-      primaryButton: {label: 'OK'},
+    /** @type {(!Node | string)} */
+    let body = 'Click OK to play a new game.';
+
+    if (isEnabled(NONOGRAM_STATISTICS)) {
+      const totalTime = submitTime - (this.#gameStart ?? submitTime);
+      body = renderSuccessMessage(totalTime);
+      updateStatistics(this.#difficulty, this.#dimensions, totalTime);
+    }
+
+    const result = await openDialog({
+      role: 'alertdialog',
+      title: 'You won!',
+      body,
+      primaryButton: {
+        label: 'OK',
+        value: DialogAction.CONFIRM,
+      },
+      secondaryButton: {label: 'Cancel'},
     });
-    this.#clear({force: true});
+    if (result === DialogAction.CONFIRM) this.reset();
   }
 }
 
