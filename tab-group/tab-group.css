@@ -1,0 +1,27 @@
+[role='tablist'] {
+  display: inline-flex;
+  gap: 8px;
+  border-bottom: 1px solid light-dark(#000, #fff);
+}
+
+[role='tablist'] > button[role='tab'] {
+  appearance: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  padding: 2px 16px;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+[role='tablist'] > button[role='tab']:hover {
+  background-color: rgb(from ButtonFace r g b / 50%);
+}
+
+[role='tablist'] > button[role='tab'][aria-selected='true'] {
+  background-color: ButtonFace;
+  border-color: light-dark(#000, #fff);
+  border-bottom: none;
+  pointer-events: none;
+  cursor: default;
+}
