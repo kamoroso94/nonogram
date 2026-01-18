@@ -78,11 +78,15 @@ export class TabGroup extends EventTarget {
   /**
    * Selects the tab at the given `index`.
    * @param {number} index Index of the tab to select.
-   * @param {boolean} [withFocus] Whether to apply focus to the newly selected tab.
+   * @param {object} [options={}]
+   * @param {boolean} [options.fromEvent] Whether an event should be fired.
+   * @param {boolean} [options.withFocus] Whether to apply focus to the newly
+   *     selected tab.
    * @returns {void}
-   * @fires TabGroup#"tab.change" If successful.
+   * @fires TabGroup#"tab.change" If successful, whenever `options.fromEvent` is
+   *     provided.
    */
-  #select(index, withFocus) {
+  #select(index, {fromEvent, withFocus} = {}) {
     // Ignore already selected tabs.
     const tab = this.#tabs[index];
     if (isTabSelected(tab)) return;
@@ -96,7 +100,9 @@ export class TabGroup extends EventTarget {
     tab.ariaSelected = 'true';
     this.#panel.ariaLabelledByElements = [tab];
     if (withFocus) tab.focus();
-    this.dispatchEvent(new CustomEvent('tab.change', {detail: tab.value}));
+    if (fromEvent) {
+      this.dispatchEvent(new CustomEvent('tab.change', {detail: tab.value}));
+    }
   }
 
   /**
@@ -130,7 +136,7 @@ export class TabGroup extends EventTarget {
       if (index < 0) return;
 
       event.preventDefault();
-      this.#select(index);
+      this.#select(index, {fromEvent: true});
     });
 
     tablist.addEventListener('keydown', (event) => {
@@ -141,7 +147,7 @@ export class TabGroup extends EventTarget {
       if (nextIndex < 0) return;
 
       event.preventDefault();
-      this.#select(nextIndex, /* withFocus= */ true);
+      this.#select(nextIndex, {fromEvent: true, withFocus: true});
     });
   }
 
