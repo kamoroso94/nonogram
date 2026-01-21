@@ -1,37 +1,37 @@
-#statistics table {
+table.stats-table {
   border-collapse: collapse;
   margin-bottom: 10px;
 }
 
-#statistics table caption {
+table.stats-table caption {
   text-align: left;
   font-weight: bold;
   font-size: 1.17em;
   margin: 10px 0;
 }
 
-#statistics table th,
-#statistics table td {
+table.stats-table th,
+table.stats-table td {
   border: 2px solid light-dark(#000, #fff);
   background-color: light-dark(#fff, #222);
   padding: 4px;
 }
 
-#statistics table th:first-child {
+table.stats-table th:first-child {
   text-align: right;
 }
 
-#statistics table td {
+table.stats-table td {
   text-align: right;
 }
 
-#statistics table td.empty {
+table.stats-table td.empty {
   border-top: none;
   border-left: none;
   visibility: hidden;
 }
 
-#statistics table td.null {
+table.stats-table td.null {
   color: light-dark(#777, #bbb);
   text-align: center;
 }

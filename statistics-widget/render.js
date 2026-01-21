@@ -56,6 +56,7 @@ function getStatsTable(root, timeFrame) {
 
   table = document.createElement('table');
   table.id = tableId;
+  table.classList.add('stats-table');
   table.createCaption().append(getTableCaption(timeFrame));
   insertColumnHeaders(table);
   insertRowHeaders(table);

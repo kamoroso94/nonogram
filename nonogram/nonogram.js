@@ -8,7 +8,6 @@ import {
   assertUnreachable,
   queryElement,
 } from '../utils/asserts.js';
-import {isEnabled, NONOGRAM_STATISTICS} from '../utils/experiments.js';
 import {getColumns, matrix} from '../utils/matrix.js';
 import {MouseButton} from '../utils/mouse-button.js';
 import {CellEnum, coerceCell, toggleCell} from './cell.js';
@@ -35,7 +34,7 @@ import {
  * @property {string} difficultySelector
  * @property {string} restartSelector
  * @property {string} submitSelector
- * @property {!HistoryWidget} historyWidget
+ * @property {!HistoryWidget<!NonogramAction>} historyWidget
  * @property {!ColorPicker} colorPicker
  * @property {!HintBox} hintBox
  */
@@ -454,19 +453,13 @@ export class Nonogram {
       return;
     }
 
-    /** @type {(!Node | string)} */
-    let body = 'Click OK to play a new game.';
-
-    if (isEnabled(NONOGRAM_STATISTICS)) {
-      const totalTime = submitTime - (this.#gameStart ?? submitTime);
-      body = renderSuccessMessage(totalTime);
-      updateStatistics(this.#difficulty, this.#dimensions, totalTime);
-    }
+    const totalTime = submitTime - (this.#gameStart ?? submitTime);
+    updateStatistics(this.#difficulty, this.#dimensions, totalTime);
 
     const result = await openDialog({
       role: 'alertdialog',
       title: 'You won!',
-      body,
+      body: renderSuccessMessage(totalTime),
       primaryButton: {
         label: 'OK',
         value: DialogAction.CONFIRM,

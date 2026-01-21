@@ -5,7 +5,6 @@ import {HistoryWidget} from './history-widget/history-widget.js';
 import {Nonogram} from './nonogram/nonogram.js';
 import {StatisticsWidget} from './statistics-widget/statistics-widget.js';
 import {assertExists} from './utils/asserts.js';
-import {isEnabled, NONOGRAM_STATISTICS} from './utils/experiments.js';
 
 /** @returns {void} */
 function initializeNonogram() {
@@ -38,8 +37,6 @@ function initializeNonogram() {
     hintBox,
   });
 
-  if (isEnabled(NONOGRAM_STATISTICS)) {
-    assertExists(document.getElementById('statistics')).hidden = false;
     void new StatisticsWidget({
       difficultyTabsConfig: {
         selector: '#stats-tabs',
@@ -48,7 +45,6 @@ function initializeNonogram() {
       deleteSelector: '#stats-clear',
     });
   }
-}
 
 /** @returns {void} */
 function initializeGallery() {
