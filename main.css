@@ -17,6 +17,7 @@ section:first-of-type {
 }
 
 section,
+aside,
 footer {
   margin: 20px auto 0;
   padding: 10px;
@@ -39,20 +40,30 @@ a[href|='#def'] {
   cursor: help;
 }
 
-#gallery img.thumb {
+ul.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gallery img.thumb {
   margin: 5px;
   padding: 5px;
   width: 200px;
   height: auto;
   box-shadow: 0 0 5px light-dark(#0007, #ccc7);
-  transition: 0.5s;
+  transition: box-shadow 0.5s;
+  cursor: zoom-in;
 }
 
-#gallery img.thumb:not(:fullscreen) {
-  cursor: pointer;
+.gallery img.thumb:fullscreen {
+  cursor: zoom-out;
 }
 
-#gallery img.thumb:hover {
+.gallery img.thumb:hover {
   box-shadow: 0 0 10px light-dark(#00f7, #77f7);
 }
 

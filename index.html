@@ -46,8 +46,8 @@
   </head>
 
   <body>
-    <section id="main-title">
-      <h1>Nonogram</h1>
+    <section aria-labelledby="main-title">
+      <h1 id="main-title">Nonogram</h1>
       <table id="nonogram-game">
         <tr>
           <th class="loading">Loading game…</th>
@@ -119,8 +119,8 @@
       </div>
     </section>
 
-    <section id="how-to-play">
-      <h2>How to Play</h2>
+    <aside aria-labelledby="how-to-play">
+      <h2 id="how-to-play">How to Play</h2>
       <p>
         The goal of the game is determining for every
         <a href="#def-cell">cell</a> in the grid whether it is a box or space.
@@ -162,80 +162,88 @@
       </dl>
 
       <h3>Example Solutions</h3>
-      <div id="gallery">
-        <picture>
-          <source
-            srcset="images/nonogram-05-dark.png"
-            width="193"
-            height="204"
-            media="(prefers-color-scheme: dark)"
-          />
-          <img
-            src="images/nonogram-05-light.png"
-            loading="lazy"
-            width="193"
-            height="204"
-            alt="A solution to a 5x5 nonogram puzzle."
-            title="5x5 Nonogram"
-            class="thumb"
-          />
-        </picture>
+      <ul id="game-gallery" class="gallery">
+        <li>
+          <picture>
+            <source
+              srcset="images/nonogram-05-dark.png"
+              width="193"
+              height="204"
+              media="(prefers-color-scheme: dark)"
+            />
+            <img
+              src="images/nonogram-05-light.png"
+              loading="lazy"
+              width="193"
+              height="204"
+              alt="A solution to a 5x5 nonogram puzzle."
+              title="5x5 Nonogram"
+              class="thumb"
+            />
+          </picture>
+        </li>
 
-        <picture>
-          <source
-            srcset="images/nonogram-10-dark.png"
-            width="360"
-            height="400"
-            media="(prefers-color-scheme: dark)"
-          />
-          <img
-            src="images/nonogram-10-light.png"
-            loading="lazy"
-            width="360"
-            height="400"
-            alt="A solution to a 10x10 nonogram puzzle."
-            title="10x10 Nonogram"
-            class="thumb"
-          />
-        </picture>
+        <li>
+          <picture>
+            <source
+              srcset="images/nonogram-10-dark.png"
+              width="360"
+              height="400"
+              media="(prefers-color-scheme: dark)"
+            />
+            <img
+              src="images/nonogram-10-light.png"
+              loading="lazy"
+              width="360"
+              height="400"
+              alt="A solution to a 10x10 nonogram puzzle."
+              title="10x10 Nonogram"
+              class="thumb"
+            />
+          </picture>
+        </li>
 
-        <picture>
-          <source
-            srcset="images/nonogram-15-dark.png"
-            width="544"
-            height="596"
-            media="(prefers-color-scheme: dark)"
-          />
-          <img
-            src="images/nonogram-15-light.png"
-            loading="lazy"
-            width="544"
-            height="596"
-            alt="A solution to a 15x15 nonogram puzzle."
-            title="15x15 Nonogram"
-            class="thumb"
-          />
-        </picture>
+        <li>
+          <picture>
+            <source
+              srcset="images/nonogram-15-dark.png"
+              width="544"
+              height="596"
+              media="(prefers-color-scheme: dark)"
+            />
+            <img
+              src="images/nonogram-15-light.png"
+              loading="lazy"
+              width="544"
+              height="596"
+              alt="A solution to a 15x15 nonogram puzzle."
+              title="15x15 Nonogram"
+              class="thumb"
+            />
+          </picture>
+        </li>
 
-        <picture>
-          <source
-            srcset="images/nonogram-20-dark.png"
-            width="740"
-            height="774"
-            media="(prefers-color-scheme: dark)"
-          />
-          <img
-            src="images/nonogram-20-light.png"
-            loading="lazy"
-            width="740"
-            height="774"
-            alt="A solution to a 20x20 nonogram puzzle."
-            title="20x20 Nonogram"
-            class="thumb"
-          />
-        </picture>
-      </div>
-    </section>
+        <li>
+          <picture>
+            <source
+              srcset="images/nonogram-20-dark.png"
+              width="740"
+              height="774"
+              media="(prefers-color-scheme: dark)"
+            />
+            <img
+              src="images/nonogram-20-light.png"
+              loading="lazy"
+              width="740"
+              height="774"
+              alt="A solution to a 20x20 nonogram puzzle."
+              title="20x20 Nonogram"
+              class="thumb"
+            />
+          </picture>
+        </li>
+      </ul>
+    </aside>
 
     <footer>Created by Kyle Amoroso in 2017.</footer>
 

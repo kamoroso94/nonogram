@@ -37,20 +37,20 @@ function initializeNonogram() {
     hintBox,
   });
 
-    void new StatisticsWidget({
-      difficultyTabsConfig: {
-        selector: '#stats-tabs',
-        panelFocusable: true,
-      },
-      deleteSelector: '#stats-clear',
-    });
-  }
+  void new StatisticsWidget({
+    difficultyTabsConfig: {
+      selector: '#stats-tabs',
+      panelFocusable: true,
+    },
+    deleteSelector: '#stats-clear',
+  });
+}
 
 /** @returns {void} */
 function initializeGallery() {
   if (!document.fullscreenEnabled) return;
 
-  const gallery = assertExists(document.getElementById('gallery'));
+  const gallery = assertExists(document.getElementById('game-gallery'));
   gallery.addEventListener('click', (event) => {
     const element = /** @type {!HTMLElement} */ (event.target);
     if (!element.matches('img')) return;
