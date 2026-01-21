@@ -19,7 +19,7 @@ export function matrix(rows, cols, initializer) {
  * @yields {T[]}
  */
 export function* getColumns(matrix) {
-  const columnCount = matrix[0].length ?? 0;
+  const columnCount = matrix[0]?.length ?? 0;
   const columnSize = matrix.length;
   for (let col = 0; col < columnCount; col++) {
     yield Array.from({length: columnSize}, (_, row) => matrix[row][col]);
