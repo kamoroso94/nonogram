@@ -79,9 +79,9 @@ export class Nonogram {
   #difficulty;
 
   /** @type {Cell[][]} */
-  #userPuzzle;
+  #userPuzzle = [];
   /** @type {!NonogramClues} */
-  #keyGridClues;
+  #keyGridClues = gridToClues([]);
 
   /** @type {(number | undefined)} */
   #gameStart;
@@ -128,12 +128,16 @@ export class Nonogram {
       HTMLSelectElement,
     );
     this.#wireDimensionsSelect(dimensionsSelect);
+    this.#dimensions = /** @type {Dimension} */ (
+      Number(dimensionsSelect.value)
+    );
 
     const difficultySelect = assertInstance(
       queryElement(difficultySelector),
       HTMLSelectElement,
     );
     this.#wireDifficultySelect(difficultySelect);
+    this.#difficulty = /** @type {Difficulty} */ (difficultySelect.value);
 
     addShortcut('Ctrl+Enter', ({timeStamp}) => {
       this.#validate(timeStamp);
@@ -235,9 +239,6 @@ export class Nonogram {
       );
       this.reset();
     });
-    this.#dimensions = /** @type {Dimension} */ (
-      Number(dimensionsSelect.value)
-    );
   }
 
   /**
@@ -258,7 +259,6 @@ export class Nonogram {
       this.#difficulty = /** @type {Difficulty} */ (difficultySelect.value);
       this.reset();
     });
-    this.#difficulty = /** @type {Difficulty} */ (difficultySelect.value);
   }
 
   /**
