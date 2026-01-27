@@ -4,6 +4,7 @@ import {HintBox} from './hint-box/hint-box.js';
 import {HistoryWidget} from './history-widget/history-widget.js';
 import {Nonogram} from './nonogram/nonogram.js';
 import {StatisticsWidget} from './statistics-widget/statistics-widget.js';
+import {TabGroup} from './tab-group/tab-group.js';
 import {assertExists} from './utils/asserts.js';
 
 /** @returns {void} */
@@ -36,12 +37,17 @@ function initializeNonogram() {
     colorPicker,
     hintBox,
   });
+}
+
+/** @returns {void} */
+function initializeStatistics() {
+  const difficultyTabs = new TabGroup({
+    selector: '#stats-tabs',
+    panelFocusable: true,
+  });
 
   void new StatisticsWidget({
-    difficultyTabsConfig: {
-      selector: '#stats-tabs',
-      panelFocusable: true,
-    },
+    difficultyTabs,
     deleteSelector: '#stats-clear',
   });
 }
@@ -64,4 +70,5 @@ function initializeGallery() {
 }
 
 initializeNonogram();
+initializeStatistics();
 initializeGallery();

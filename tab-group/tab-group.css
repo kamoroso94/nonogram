@@ -11,15 +11,16 @@
   padding: 2px 16px;
   background: transparent;
   font: inherit;
+  color: inherit;
   cursor: pointer;
 }
 
 [role='tablist'] > button[role='tab']:hover {
-  background-color: rgb(from ButtonFace r g b / 50%);
+  background-color: light-dark(#eeeeee7f, #6666667f);
 }
 
 [role='tablist'] > button[role='tab'][aria-selected='true'] {
-  background-color: ButtonFace;
+  background-color: light-dark(#eee, #666);
   border-color: light-dark(#666, #aaa);
   pointer-events: none;
   cursor: default;

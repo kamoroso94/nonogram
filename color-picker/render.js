@@ -17,7 +17,7 @@ export function renderColorPicker(palette) {
  * Renders the color input and label pair.
  * @param {!Color} color
  * @param {number} index
- * @return {!DocumentFragment}
+ * @returns {!DocumentFragment}
  */
 function renderColor(color, index) {
   const fragment = document.createDocumentFragment();

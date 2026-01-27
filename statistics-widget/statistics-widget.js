@@ -1,5 +1,4 @@
 import {NONOGRAM_STATS_DIFFICULTY_KEY} from '../config.js';
-import {TabGroup} from '../tab-group/tab-group.js';
 import {DialogAction, openDialog} from '../services/dialog-service.js';
 import {
   clearAllStatistics,
@@ -10,13 +9,13 @@ import {renderStatistics} from './render.js';
 import {DIFFICULTIES} from './statistics.js';
 
 /**
- * @import {TabGroupConfig} from '../tab-group/tab-group.js'
+ * @import {TabGroup} from '../tab-group/tab-group.js'
  * @import {Difficulty} from './statistics.js'
  */
 
 /**
  * @typedef {object} StatisticsWidgetConfig
- * @property {!TabGroupConfig} difficultyTabsConfig
+ * @property {!TabGroup} difficultyTabs
  * @property {string} deleteSelector
  */
 
@@ -29,8 +28,8 @@ export class StatisticsWidget {
   #difficulty;
 
   /** @param {!StatisticsWidgetConfig} config */
-  constructor({difficultyTabsConfig, deleteSelector}) {
-    this.#difficultyTabs = new TabGroup(difficultyTabsConfig);
+  constructor({difficultyTabs, deleteSelector}) {
+    this.#difficultyTabs = difficultyTabs;
     this.#wireDifficultyTabs();
     this.#difficulty = /** @type {Difficulty} */ (this.#difficultyTabs.value);
 
