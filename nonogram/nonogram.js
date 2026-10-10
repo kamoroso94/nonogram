@@ -86,6 +86,9 @@ export class Nonogram {
   /** @type {(number | undefined)} */
   #gameStart;
 
+  /** @type {(number | undefined)} */
+  #lastUpdate;
+
   /**
    * @param {!NonogramConfig} config
    * @throws {!TypeError} When any of the selectors fail to match an element.
@@ -288,6 +291,7 @@ export class Nonogram {
     this.#hintBox.reset();
     this.#historyWidget.reset();
     this.#gameStart = undefined;
+    this.#lastUpdate = undefined;
 
     // Make empty user puzzle and random key puzzle.
     this.#userPuzzle = matrix(
@@ -407,6 +411,7 @@ export class Nonogram {
 
     this.#userPuzzle[row][col] = finalState;
     this.#gameStart ??= updateTime;
+    this.#lastUpdate = updateTime;
 
     // Don't change color when locking unless by force.
     if (forcedColor || coerceCell(initialState) !== coerceCell(finalState)) {
@@ -450,10 +455,12 @@ export class Nonogram {
       });
       this.#clear({force: true});
       this.#gameStart = undefined;
+      this.#lastUpdate = undefined;
       return;
     }
 
-    const totalTime = submitTime - (this.#gameStart ?? submitTime);
+    const totalTime =
+      (this.#lastUpdate ?? submitTime) - (this.#gameStart ?? submitTime);
     updateStatistics(this.#difficulty, this.#dimensions, totalTime);
 
     const result = await openDialog({
